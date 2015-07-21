@@ -1,3 +1,4 @@
+<?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
   <!--
     This Jelly script is used to produce the global configuration option.
@@ -11,10 +12,19 @@
     tags they use. Views are always organized according to its owner class,
     so it should be straightforward to find them.
   -->
-  <f:section title="Hello World Builder">
-    <f:entry title="French" field="useFrench"
-      description="Check if we should say hello in French">
-      <f:checkbox />
-    </f:entry>
-  </f:section>
+    <f:section title="VSTART">
+	<f:entry title="Web Address" field="vstAddress"
+      help="src/main/resources/com.visionspace.vstart.plugin.VSPluginBuilder/help-web.html">
+            <f:textbox />
+        </f:entry>
+        <f:entry title="Username" field="vstUser"
+      help="/Vstart-plugin/com.visionspace.vstart.plugin.VSPluginBuilder/help-user.html">
+            <f:textbox />
+        </f:entry>
+        <f:entry title="Password" field="vstPass"
+      help="/home/pmarinho/Repos/vstart-plugin/Vstart-Plugin/src/main/resources/com/visionspace/vstart/plugin/VSPluginBuilder/help-pass.html">
+            <f:textbox />
+        </f:entry>
+    </f:section>
+  
 </j:jelly>
