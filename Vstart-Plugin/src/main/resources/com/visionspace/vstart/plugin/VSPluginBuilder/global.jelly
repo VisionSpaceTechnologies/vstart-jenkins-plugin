@@ -17,17 +17,18 @@
             >
             <f:textbox />
         </f:entry>
+        <f:validateButton
+            title="${%Test Connection}" progress="${%Testing...}"
+            method="checkAddress" with="vstAddress" />
         <f:entry title="Username" field="vstUser" 
             >
             <f:textbox />
         </f:entry>
-        <f:entry title="Password" field="vstPass" 
-            >
-            <f:textbox />
+        <f:entry title="Password"> <f:password field="vstPass" /> 
         </f:entry>
-        <f:entry field="Project" title="Choose VSTART project">
-            <f:select />
-        </f:entry>
+        <f:validateButton
+            title="${%Test Login}" progress="${%Testing...}"
+            method="checkLogin" with="vstAddress,vstUser,vstPass" />
     </f:section>
   
 </j:jelly>
