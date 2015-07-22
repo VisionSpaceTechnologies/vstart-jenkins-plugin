@@ -21,9 +21,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
-import org.apache.commons.validator.UrlValidator;
+import org.apache.http.client.HttpResponseException;
 
 
 
@@ -37,7 +36,7 @@ public class VSPluginBuilder extends Builder {
     private final String vstAddress;
     private final String vstUser;
     private final String vstPass;
-    private final Vstart vst;
+    private Vstart vst;
     
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
@@ -46,7 +45,7 @@ public class VSPluginBuilder extends Builder {
         this.vstAddress = vstAddress;
         this.vstUser = vstUser;
         this.vstPass = vstPass;
-        this.vst = this.login();
+        //this.vst = this.login();
     }
 
     public String getVstAddress() {
@@ -80,23 +79,11 @@ public class VSPluginBuilder extends Builder {
      * @return Vstart API object
      * @throws URISyntaxException 
      */
-    private Vstart login() throws URISyntaxException{
+    private Vstart login() throws URISyntaxException, IOException{
         Vstart v = new Vstart(vstAddress, vstUser, vstPass);
         return v;
     };
 
-    
-    public ListBoxModel doFillProjectTypeItems(Vstart v) throws URISyntaxException {
-            ListBoxModel items = new ListBoxModel();
-                        
-            for(int j = 0; j < vst.listProjects().length(); j++){
-                String project =  vst.listProjects().getJSONObject(j).toString();
-                items.add(project);
-            }
-            
-            return items;
-        }
-    
     // Overridden for better type safety.
     // If your plugin doesn't really define any property on Descriptor,
     // you don't have to do this.
@@ -108,12 +95,28 @@ public class VSPluginBuilder extends Builder {
     
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
     public static class Descriptor extends BuildStepDescriptor<Builder> {
-               
+        
+        private String vstAddress;
+        private String vstUser;
+        private String vstPass;
+        
         @Override
         public String getDisplayName()
         {
             return "Execute VSTART tasks.";
         };
+        
+        public void setVstAddress(String s){
+            this.vstAddress = s;
+        }
+        
+        public void setVstUser(String u){
+           this.vstUser = u;
+        }
+        
+        public void setVstPass(String pwd){
+            this.vstPass = pwd;
+        }
         
         /**
          * Tests the validity of an URL
@@ -146,13 +149,14 @@ public class VSPluginBuilder extends Builder {
         }
         
              
-        public FormValidation doCheckLogin(@QueryParameter String address , @QueryParameter String user, @QueryParameter String pass) 
-                throws URISyntaxException
+        public FormValidation doCheckLogin(@QueryParameter("vstAddress") final String address , 
+                @QueryParameter("vstUser") final String user, @QueryParameter("vstPass") final String pass) 
+                throws URISyntaxException, IOException
         {
             try {   
                 Vstart v = new Vstart(address, user, pass);
-                return FormValidation.ok();
-            } catch(URISyntaxException e) {    
+                return FormValidation.ok("Valid credentials!");
+            } catch(HttpResponseException e) {    
                 return FormValidation.error("Login failed!");
             }
         }
@@ -173,7 +177,19 @@ public class VSPluginBuilder extends Builder {
             save();
             return super.configure(req,formData);
         }
-
+        
+        public ListBoxModel doFillProjectItems() throws URISyntaxException, IOException{
+            ListBoxModel items = new ListBoxModel();
+            Vstart vst = new Vstart(this.vstAddress, this.vstUser, this.vstPass);
+                        
+            for(int j = 0; j < vst.listProjects().length(); j++){
+                String project =  vst.listProjects().getJSONObject(j).toString();
+                System.out.println("Projetos " +project);
+                items.add(project);
+            }
+            
+            return items;
+        }
         
     }
     
