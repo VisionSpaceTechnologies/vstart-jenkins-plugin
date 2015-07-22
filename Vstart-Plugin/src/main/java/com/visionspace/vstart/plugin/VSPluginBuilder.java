@@ -1,4 +1,5 @@
 package com.visionspace.vstart.plugin;
+
 import hudson.Launcher;
 import hudson.Extension;
 import hudson.util.FormValidation;
@@ -11,42 +12,46 @@ import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.QueryParameter;
+import com.visionspace.vstart.api.Vstart;
+import hudson.util.ListBoxModel;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import org.apache.commons.validator.UrlValidator;
+
+
 
 /**
- * Sample {@link Builder}.
- *
- * <p>
- * When the user configures the project and enables this builder,
- * {@link DescriptorImpl#newInstance(StaplerRequest)} is invoked
- * and a new {@link VSPluginBuilder} is created. The created
- * instance is persisted to the project configuration XML by using
- * XStream, so this allows you to use instance fields (like {@link #name})
- * to remember the configuration.
- *
- * <p>
- * When a build is performed, the {@link #perform(AbstractBuild, Launcher, BuildListener)}
- * method will be invoked. 
- *
- * @author Kohsuke Kawaguchi
+ * Vstart Plugin Builder
+ * 
+ * @author pedro.marinho
  */
 public class VSPluginBuilder extends Builder {
 
-    private final String name;
-
+    private final String vstAddress;
+    private final String vstUser;
+    private final String vstPass;
+    
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
-    public VSPluginBuilder(String name) {
-        this.name = name;
+    public VSPluginBuilder(String name, String address, String user, String pass) {
+       
+        this.vstAddress = address;
+        this.vstUser = user;
+        this.vstPass = pass;
     }
 
-    /**
-     * We'll use this from the <tt>config.jelly</tt>.
-     */
-    public String getName() {
-        return name;
+    public String getVstAddress() {
+        return vstAddress;
+    }
+    
+    public String getVstUser() {
+        return vstUser;
+    }
+    
+    public String getVstPass(){
+        return vstPass;
     }
 
     @Override
@@ -55,89 +60,78 @@ public class VSPluginBuilder extends Builder {
         // Since this is a dummy, we just say 'hello world' and call that a build.
 
         // This also shows how you can consult the global configuration of the builder
-        if (getDescriptor().getUseFrench())
-            listener.getLogger().println("Bonjour, "+name+"!");
-        else
-            listener.getLogger().println("Hello, "+name+"!");
+       
         return true;
     }
+    
+    /**
+     * Logs in with credentials received from the jenkins config page.
+     * @return Vstart API object
+     * @throws URISyntaxException 
+     */
+    public Vstart login() throws URISyntaxException{
+        Vstart vst = new Vstart(vstAddress, vstUser, vstPass);
+        return vst;
+    };
 
+    
+    public ListBoxModel doFillProjectTypeItems(Vstart v) throws URISyntaxException {
+            ListBoxModel items = new ListBoxModel();
+            v = this.login();
+            
+            for (int i = 0; i < v.listProjects().length(); i++) {
+                items.add(v.listProjects().getString(i));
+            }
+            return items;
+        }
+    
     // Overridden for better type safety.
     // If your plugin doesn't really define any property on Descriptor,
     // you don't have to do this.
     @Override
-    public DescriptorImpl getDescriptor() {
-        return (DescriptorImpl)super.getDescriptor();
+    public Descriptor getDescriptor() {
+        return (Descriptor)super.getDescriptor();
     }
 
-    /**
-     * Descriptor for {@link VSPluginBuilder}. Used as a singleton.
-     * The class is marked as public so that it can be accessed from views.
-     *
-     * <p>
-     * See <tt>src/main/resources/hudson/plugins/hello_world/HelloWorldBuilder/*.jelly</tt>
-     * for the actual HTML fragment for the configuration screen.
-     */
+    
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
-    public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
-        /**
-         * To persist global configuration information,
-         * simply store it in a field and call save().
-         *
-         * <p>
-         * If you don't want fields to be persisted, use <tt>transient</tt>.
-         */
-        private boolean useFrench;
-
-        /**
-         * Performs on-the-fly validation of the form field 'name'.
-         *
-         * @param value
-         *      This parameter receives the value that the user has typed.
-         * @return
-         *      Indicates the outcome of the validation. This is sent to the browser.
-         */
-        public FormValidation doCheckName(@QueryParameter String value)
+    public static class Descriptor extends BuildStepDescriptor<Builder> {
+        
+        @Override
+        public String getDisplayName()
+        {
+            return "Execute VSTART tasks.";
+        };
+        
+        public FormValidation doCheckAddress(@QueryParameter String address)
                 throws IOException, ServletException {
-            if (value.length() == 0)
-                return FormValidation.error("Please set a name");
-            if (value.length() < 4)
-                return FormValidation.warning("Isn't the name too short?");
-            return FormValidation.ok();
+            UrlValidator urlVal = new UrlValidator();
+            
+            if (urlVal.isValid(address))
+                return FormValidation.ok();
+            else return FormValidation.error("Please insert a valid URL!");
+            
         }
-
-        public boolean isApplicable(Class<? extends AbstractProject> aClass) {
-            // Indicates that this builder can be used with all kinds of project types 
+        
+        @Override
+        public boolean isApplicable(Class<? extends AbstractProject> jobType) {
             return true;
-        }
-
-        /**
-         * This human readable name is used in the configuration screen.
-         */
-        public String getDisplayName() {
-            return "Say hello world";
-        }
+        };
 
         @Override
         public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
             // To persist global configuration information,
             // set that to properties and call save().
-            useFrench = formData.getBoolean("useFrench");
+            
             // ^Can also use req.bindJSON(this, formData);
             //  (easier when there are many fields; need set* methods for this, like setUseFrench)
             save();
             return super.configure(req,formData);
         }
 
-        /**
-         * This method returns true if the global configuration says we should speak French.
-         *
-         * The method name is bit awkward because global.jelly calls this method to determine
-         * the initial state of the checkbox by the naming convention.
-         */
-        public boolean getUseFrench() {
-            return useFrench;
-        }
+        
     }
+    
+    
 }
 
