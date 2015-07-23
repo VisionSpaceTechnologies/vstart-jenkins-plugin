@@ -86,6 +86,10 @@ public class VSPluginBuilder extends Builder {
         private String vstUser;
         private String vstPass;
         
+        public Descriptor(){
+            load();
+        }
+        
         @Override
         public String getDisplayName()
         {
@@ -144,6 +148,8 @@ public class VSPluginBuilder extends Builder {
                 return FormValidation.ok("Valid credentials!");
             } catch(HttpResponseException e) {    
                 return FormValidation.error("Login failed!");
+            } catch(IOException ex){
+                return FormValidation.error("Login failed!");
             }
         }
         
@@ -161,6 +167,7 @@ public class VSPluginBuilder extends Builder {
             // ^Can also use req.bindJSON(this, formData);
             //  (easier when there are many fields; need set* methods for this, like setUseFrench)
             save();
+            load();
             return super.configure(req,formData);
         }
         
