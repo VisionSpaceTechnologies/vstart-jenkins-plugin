@@ -36,7 +36,7 @@ public class VSPluginBuilder extends Builder {
     private final String vstAddress;
     private final String vstUser;
     private final String vstPass;
-    private Vstart vst;
+    
     
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
@@ -45,7 +45,6 @@ public class VSPluginBuilder extends Builder {
         this.vstAddress = vstAddress;
         this.vstUser = vstUser;
         this.vstPass = vstPass;
-        //this.vst = this.login();
     }
 
     public String getVstAddress() {
@@ -59,10 +58,6 @@ public class VSPluginBuilder extends Builder {
     public String getVstPass(){
         return vstPass;
     }
-
-    public Vstart getVst(){
-        return vst;
-    }
     
     @Override
     public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) {
@@ -73,16 +68,7 @@ public class VSPluginBuilder extends Builder {
        
         return true;
     }
-    
-    /**
-     * Logs in with credentials received from the jenkins config page.
-     * @return Vstart API object
-     * @throws URISyntaxException 
-     */
-    private Vstart login() throws URISyntaxException, IOException{
-        Vstart v = new Vstart(vstAddress, vstUser, vstPass);
-        return v;
-    };
+       
 
     // Overridden for better type safety.
     // If your plugin doesn't really define any property on Descriptor,
@@ -183,8 +169,7 @@ public class VSPluginBuilder extends Builder {
             Vstart vst = new Vstart(this.vstAddress, this.vstUser, this.vstPass);
                         
             for(int j = 0; j < vst.listProjects().length(); j++){
-                String project =  vst.listProjects().getJSONObject(j).toString();
-                System.out.println("Projetos " +project);
+                String project =  vst.listProjects().getJSONObject(j).getString("title");
                 items.add(project);
             }
             
