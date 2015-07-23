@@ -12,4 +12,6 @@
     <f:entry field="Project" title="Choose VSTART project">
             <f:select />
         </f:entry>
+        <f:entry field="stat" title="Status" value="${descriptor.getStat}">
+        </f:entry>
 </j:jelly>

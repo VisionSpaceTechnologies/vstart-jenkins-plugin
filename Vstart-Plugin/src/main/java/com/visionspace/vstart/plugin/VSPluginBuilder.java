@@ -85,6 +85,7 @@ public class VSPluginBuilder extends Builder {
         private String vstAddress;
         private String vstUser;
         private String vstPass;
+        private String stat;
         
         public Descriptor(){
             load();
@@ -106,6 +107,10 @@ public class VSPluginBuilder extends Builder {
         
         public String getVstPass(){
             return this.vstPass;
+        };
+        
+        public String getStat(){
+            return this.stat;
         };
         
         public void setVstAddress(String s){
@@ -179,7 +184,6 @@ public class VSPluginBuilder extends Builder {
             // ^Can also use req.bindJSON(this, formData);
             //  (easier when there are many fields; need set* methods for this, like setUseFrench)
             save();
-            load();
             return super.configure(req,formData);
         }
         
