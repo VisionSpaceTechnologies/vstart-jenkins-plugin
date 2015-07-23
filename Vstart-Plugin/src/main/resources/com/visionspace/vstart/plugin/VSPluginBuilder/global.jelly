@@ -15,16 +15,17 @@
     <f:section title="VSTART">
 	<f:entry title="Web Address" field="vstAddress" 
             >
-            <f:textbox />
+            <f:textbox default="${descriptor.defaultVstAddress()}"/>
         </f:entry>
         <f:validateButton
             title="${%Test Connection}" progress="${%Testing...}"
             method="checkAddress" with="vstAddress" />
         <f:entry title="Username" field="vstUser" 
             >
-            <f:textbox />
+            <f:textbox default="${descriptor.defaultVstUser()}"/>
         </f:entry>
-        <f:entry title="Password"> <f:password field="vstPass" /> 
+        <f:entry title="Password"> <f:password 
+                field="vstPass" default="${descriptor.defaultVstPass()}" /> 
         </f:entry>
         <f:validateButton
             title="${%Test Login}" progress="${%Testing...}"

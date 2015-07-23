@@ -96,6 +96,18 @@ public class VSPluginBuilder extends Builder {
             return "Execute VSTART tasks.";
         };
         
+        public String getVstAddress(){
+            return this.vstAddress;
+        };
+        
+        public String getVstUser(){
+            return this.vstUser;
+        };
+        
+        public String getVstPass(){
+            return this.vstPass;
+        };
+        
         public void setVstAddress(String s){
             this.vstAddress = s;
         }
