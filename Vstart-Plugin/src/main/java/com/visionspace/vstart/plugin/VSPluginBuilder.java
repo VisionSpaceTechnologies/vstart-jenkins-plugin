@@ -35,15 +35,17 @@ public class VSPluginBuilder extends Builder {
     private final String vstAddress;
     private final String vstUser;
     private final String vstPass;
+    private final String credentials;
     
     
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
-    public VSPluginBuilder(String vstAddress, String vstUser, String vstPass) throws URISyntaxException {
+    public VSPluginBuilder(String vstAddress, String vstUser, String vstPass, String c) throws URISyntaxException {
        
         this.vstAddress = vstAddress;
         this.vstUser = vstUser;
         this.vstPass = vstPass;
+        this.credentials = c;
     }
 
     public String getVstAddress() {
@@ -56,6 +58,10 @@ public class VSPluginBuilder extends Builder {
     
     public String getVstPass(){
         return vstPass;
+    }
+    
+    public String getCredentials(){
+        return credentials;
     }
     
     @Override
@@ -227,6 +233,12 @@ public class VSPluginBuilder extends Builder {
                 this.stat = false;
                 return items;
             }    
+        }
+        
+        public ListBoxModel doFillCredentialsItems(){
+            ListBoxModel items = new ListBoxModel();
+            
+            return items;
         }
                 
     }

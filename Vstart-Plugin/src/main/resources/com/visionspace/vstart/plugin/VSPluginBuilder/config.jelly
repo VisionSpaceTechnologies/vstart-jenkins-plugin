@@ -16,12 +16,12 @@
         <f:entry title="Status">
             <j:if test="${descriptor.getStat()}" >
                 <!--We found ${descriptor.getStat()}-->
-                <img src="/plugin/Vstart-Plugin/images/green-icon.png" width="30" height="30" />
+                <img src="${rootURL}/plugin/Vstart-Plugin/images/green-icon.png" width="30" height="30" />
             </j:if>
             
             <j:if test="${!descriptor.getStat()}">
                 <!--We found ${!descriptor.getStat()}-->
-                <img src="/plugin/Vstart-Plugin/images/red-icon.png" width="50" height="50" />
+                <img src="${rootURL}/plugin/Vstart-Plugin/images/red-icon.png" width="50" height="50" />
             </j:if>
         </f:entry>
     
