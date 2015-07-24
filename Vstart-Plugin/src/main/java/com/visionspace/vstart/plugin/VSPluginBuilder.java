@@ -85,7 +85,7 @@ public class VSPluginBuilder extends Builder {
         private String vstAddress;
         private String vstUser;
         private String vstPass;
-        private String stat;
+        private boolean stat;
         
         public Descriptor(){
             load();
@@ -109,7 +109,7 @@ public class VSPluginBuilder extends Builder {
             return this.vstPass;
         };
         
-        public String getStat(){
+        public boolean getStat(){
             return this.stat;
         };
         
@@ -187,18 +187,27 @@ public class VSPluginBuilder extends Builder {
             return super.configure(req,formData);
         }
         
-        public ListBoxModel doFillProjectItems() throws URISyntaxException, IOException{
-            ListBoxModel items = new ListBoxModel();
-            Vstart vst = new Vstart(this.vstAddress, this.vstUser, this.vstPass);
-                        
-            for(int j = 0; j < vst.listProjects().length(); j++){
-                String project =  vst.listProjects().getJSONObject(j).getString("title");
-                items.add(project);
-            }
+        public ListBoxModel doFillProjectItems() throws URISyntaxException{
             
-            return items;
+            ListBoxModel items = new ListBoxModel();
+            
+            try{
+                Vstart vst = new Vstart(this.vstAddress, this.vstUser, this.vstPass);
+                this.stat = true;
+                
+                for(int j = 0; j < vst.listProjects().length(); j++){
+                    String project =  vst.listProjects().getJSONObject(j).getString("title");
+                    items.add(project);
+                }
+                return items;
+                
+            } catch(IOException e){
+                
+                this.stat = false;
+                return items;
+            }
         }
-        
+                
     }
     
     

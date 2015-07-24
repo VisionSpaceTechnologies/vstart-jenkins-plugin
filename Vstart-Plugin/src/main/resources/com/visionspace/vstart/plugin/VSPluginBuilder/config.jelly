@@ -12,6 +12,15 @@
     <f:entry field="Project" title="Choose VSTART project">
             <f:select />
         </f:entry>
-        <f:entry field="stat" title="Status" value="${descriptor.getStat}">
+    
+        <f:entry title="Status">
+            <f:if test="${descriptor.getStat()}" >
+                <img id="green-icon" src="${imagesURL}/green-icon.png" width="200" height="50" />
+            </f:if>
+            
+            <f:if test="$!{descriptor.getStat()}">
+                <img id="red-icon" src="${imagesURL}/red-icon.png" width="200" height="50" />
+            </f:if>
         </f:entry>
+    
 </j:jelly>
