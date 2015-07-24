@@ -94,6 +94,22 @@ public class VSPluginBuilder extends Builder {
         @Override
         public String getDisplayName()
         {
+            //teste
+            try{
+                Vstart vst = new Vstart(this.vstAddress, this.vstUser, this.vstPass);
+                this.stat = true;
+                                
+            } catch(IOException e){
+                
+                this.stat = false;
+
+                
+            } catch(URISyntaxException ex){
+                             
+                this.stat = false;
+                
+            }
+                    
             return "Execute VSTART tasks.";
         };
         
@@ -187,13 +203,12 @@ public class VSPluginBuilder extends Builder {
             return super.configure(req,formData);
         }
         
-        public ListBoxModel doFillProjectItems() throws URISyntaxException{
-            
-            ListBoxModel items = new ListBoxModel();
+        public ListBoxModel doFillProjectItems() {
             
             try{
                 Vstart vst = new Vstart(this.vstAddress, this.vstUser, this.vstPass);
                 this.stat = true;
+                ListBoxModel items = new ListBoxModel();
                 
                 for(int j = 0; j < vst.listProjects().length(); j++){
                     String project =  vst.listProjects().getJSONObject(j).getString("title");
@@ -203,9 +218,16 @@ public class VSPluginBuilder extends Builder {
                 
             } catch(IOException e){
                 
+                ListBoxModel items = new ListBoxModel();
                 this.stat = false;
                 return items;
-            }
+                
+            } catch(URISyntaxException ex){
+                
+                ListBoxModel items = new ListBoxModel();
+                this.stat = false;
+                return items;
+            }    
         }
                 
     }

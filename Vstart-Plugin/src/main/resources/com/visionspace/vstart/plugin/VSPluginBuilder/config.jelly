@@ -14,13 +14,15 @@
         </f:entry>
     
         <f:entry title="Status">
-            <f:if test="${descriptor.getStat()}" >
-                <img id="green-icon" src="${imagesURL}/green-icon.png" width="200" height="50" />
-            </f:if>
+            <j:if test="${descriptor.getStat()}" >
+                <!--We found ${descriptor.getStat()}-->
+                <img src="/plugin/Vstart-Plugin/images/green-icon.png" width="30" height="30" />
+            </j:if>
             
-            <f:if test="$!{descriptor.getStat()}">
-                <img id="red-icon" src="${imagesURL}/red-icon.png" width="200" height="50" />
-            </f:if>
+            <j:if test="${!descriptor.getStat()}">
+                <!--We found ${!descriptor.getStat()}-->
+                <img src="/plugin/Vstart-Plugin/images/red-icon.png" width="50" height="50" />
+            </j:if>
         </f:entry>
     
 </j:jelly>

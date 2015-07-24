@@ -30,7 +30,7 @@
       <url>http://repo.jenkins-ci.org/public/</url>
     </pluginRepository>
   </pluginRepositories>
-  
+
   <dependencies>
       <dependency>
         <groupId>com.visionspace</groupId>
