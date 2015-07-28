@@ -1,5 +1,12 @@
 package com.visionspace.vstart.plugin;
 
+import com.cloudbees.plugins.credentials.CredentialsMatchers;
+import com.cloudbees.plugins.credentials.CredentialsProvider;
+import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
+import com.cloudbees.plugins.credentials.common.StandardUsernameListBoxModel;
+import com.cloudbees.plugins.credentials.common.StandardUsernamePasswordCredentials;
+import com.cloudbees.plugins.credentials.domains.DomainRequirement;
+import static com.google.common.collect.Lists.newArrayList;
 import hudson.Launcher;
 import hudson.Extension;
 import hudson.util.FormValidation;
@@ -14,6 +21,7 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.QueryParameter;
 import com.visionspace.vstart.api.Vstart;
 import hudson.model.FreeStyleProject;
+import hudson.model.Job;
 import hudson.util.ListBoxModel;
 
 import javax.servlet.ServletException;
@@ -21,7 +29,9 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
-import org.apache.http.client.HttpResponseException;
+import java.util.List;
+import jenkins.model.Jenkins;
+import org.kohsuke.stapler.AncestorInPath;
 
 
 
@@ -33,35 +43,19 @@ import org.apache.http.client.HttpResponseException;
 public class VSPluginBuilder extends Builder {
 
     private final String vstAddress;
-    private final String vstUser;
-    private final String vstPass;
-    private final String credentials;
+    private final String credentialsId;
     
     
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
-    public VSPluginBuilder(String vstAddress, String vstUser, String vstPass, String c) throws URISyntaxException {
+    public VSPluginBuilder(String vstAddress, String credentialsId) throws URISyntaxException {
        
         this.vstAddress = vstAddress;
-        this.vstUser = vstUser;
-        this.vstPass = vstPass;
-        this.credentials = c;
+        this.credentialsId = credentialsId;
     }
 
     public String getVstAddress() {
         return vstAddress;
-    }
-    
-    public String getVstUser() {
-        return vstUser;
-    }
-    
-    public String getVstPass(){
-        return vstPass;
-    }
-    
-    public String getCredentials(){
-        return credentials;
     }
     
     @Override
@@ -91,7 +85,8 @@ public class VSPluginBuilder extends Builder {
         private String vstUser;
         private String vstPass;
         private boolean stat;
-        
+        private String credentialsId;
+                
         public Descriptor(){
             load();
         }
@@ -134,21 +129,30 @@ public class VSPluginBuilder extends Builder {
             return this.stat;
         };
         
+        public String getCredentialsId(){
+            return this.credentialsId;
+        }
+             
         public void setVstAddress(String s){
             this.vstAddress = s;
         }
         
-        public void setVstUser(String u){
-           this.vstUser = u;
+        public void setVstUser(String user){
+           this.vstUser = user;
         }
         
-        public void setVstPass(String pwd){
-            this.vstPass = pwd;
+        public void setVstPass(String pass){
+            this.vstPass = pass;
+        }
+
+        public void setCredentialsId(String credentialsId){
+            this.credentialsId = credentialsId;
         }
         
+ 
         /**
-         * Tests the validity of an URL
-         * @param url 
+         * Tests the validity of an URL 
+         * @param nUrl
          * @return true if valid, false if not valid
          */
         public boolean isValidURL(String nUrl){
@@ -176,23 +180,24 @@ public class VSPluginBuilder extends Builder {
             
         }
         
-             
-        public FormValidation doCheckLogin(@QueryParameter("vstAddress") final String address , 
-                @QueryParameter("vstUser") final String user, @QueryParameter("vstPass") final String pass) 
-                throws URISyntaxException, IOException
-        {
-            try {   
-                Vstart v = new Vstart(address, user, pass);
-                return FormValidation.ok("Valid credentials!");
-            } catch(HttpResponseException e) {    
-                return FormValidation.error("Login failed!");
-            } catch(IOException ex){
-                return FormValidation.error("Login failed!");
-            }
-        }
+          //Removed because of the integration of the Credentials plugin   
+//        public FormValidation doCheckLogin(@QueryParameter("vstAddress") final String address , 
+//                @QueryParameter("vstUser") final String user, @QueryParameter("vstPass") final String pass) 
+//                throws URISyntaxException, IOException
+//        {
+//            try {   
+//                Vstart v = new Vstart(address, user, pass);
+//                return FormValidation.ok("Valid credentials!");
+//            } catch(HttpResponseException e) {    
+//                return FormValidation.error("Login failed!");
+//            } catch(IOException ex){
+//                return FormValidation.error("Login failed!");
+//            }
+//        }
         
         @Override
         public boolean isApplicable(Class<? extends AbstractProject> jobType) {
+            // Indicates that this builder can be used with all kinds of project types
             return FreeStyleProject.class.isAssignableFrom(jobType);
         };
 
@@ -201,9 +206,17 @@ public class VSPluginBuilder extends Builder {
             // To persist global configuration information,
             // set that to properties and call save().
             req.bindJSON(this, formData);
-            
+            List<DomainRequirement> domainRequirements = newArrayList();
+            List<StandardUsernamePasswordCredentials> c = CredentialsProvider.lookupCredentials(StandardUsernamePasswordCredentials.class, Jenkins.getInstance(), null, domainRequirements);
             // ^Can also use req.bindJSON(this, formData);
             //  (easier when there are many fields; need set* methods for this, like setUseFrench)
+            for(int i = 0; i < c.size(); i++){
+                if(c.get(i).getId().equals(formData.getString("credentialsId"))){
+                    setVstUser(c.get(i).getUsername());
+                    setVstPass(c.get(i).getPassword().getPlainText());
+                    break;
+                }
+            }
             save();
             return super.configure(req,formData);
         }
@@ -235,11 +248,36 @@ public class VSPluginBuilder extends Builder {
             }    
         }
         
-        public ListBoxModel doFillCredentialsItems(){
-            ListBoxModel items = new ListBoxModel();
+        public ListBoxModel doFillCredentialsIdItems(@AncestorInPath Job<?,?> owner, @QueryParameter String credentialsId) {
+            if (!Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER)) { // or whatever permission is appropriate for this page
+                // Important! Otherwise you expose credentials metadata to random web requests.
+                return new ListBoxModel();
+            }
             
-            return items;
+            List<DomainRequirement> domainRequirements = newArrayList();
+            
+            return new StandardUsernameListBoxModel().withEmptySelection().withAll(
+                    CredentialsProvider.lookupCredentials(StandardUsernameCredentials.class, owner, null, domainRequirements));
         }
+        
+        
+//        public ListBoxModel doFillCredentialsIdItems(@AncestorInPath Jenkins context) {
+//            if (context == null || !context.hasPermission(Item.CONFIGURE)) {
+//                return new ListBoxModel();
+//            }
+//
+//            List<DomainRequirement> domainRequirements = newArrayList();
+//            return new StandardListBoxModel()
+//                    .withEmptySelection()
+//                    .withMatching(
+//                            CredentialsMatchers.anyOf(
+//                                    CredentialsMatchers.instanceOf(VstartCredentials.class)),
+//                            CredentialsProvider.lookupCredentials(
+//                                    StandardCredentials.class,
+//                                    context,
+//                                    null,
+//                                    domainRequirements));
+//        }
                 
     }
     

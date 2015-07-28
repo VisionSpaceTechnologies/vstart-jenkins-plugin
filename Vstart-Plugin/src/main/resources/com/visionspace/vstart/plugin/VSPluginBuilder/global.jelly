@@ -31,7 +31,7 @@
             title="${%Test Login}" progress="${%Testing...}"
             method="checkLogin" with="vstAddress,vstUser,vstPass" />
     </f:section>-->
-            <f:entry title="Credentials" field="credentials">
+            <f:entry title="Credentials" field="credentialsId">
                 <c:select/>
                 
             </f:entry>    
