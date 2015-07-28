@@ -1,6 +1,5 @@
 package com.visionspace.vstart.plugin;
 
-import com.cloudbees.plugins.credentials.CredentialsMatchers;
 import com.cloudbees.plugins.credentials.CredentialsProvider;
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.common.StandardUsernameListBoxModel;
@@ -45,7 +44,12 @@ public class VSPluginBuilder extends Builder {
     private final String vstAddress;
     private final String credentialsId;
     
-    
+    /**
+     * VSPluginBuilder Constructor
+     * @param String vstAddress - web address of the vstart server
+     * @param String credentialsId - Id assigned to each credential in the credentials plugin
+     * @throws URISyntaxException 
+     */
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
     public VSPluginBuilder(String vstAddress, String credentialsId) throws URISyntaxException {
@@ -259,26 +263,7 @@ public class VSPluginBuilder extends Builder {
             return new StandardUsernameListBoxModel().withEmptySelection().withAll(
                     CredentialsProvider.lookupCredentials(StandardUsernameCredentials.class, owner, null, domainRequirements));
         }
-        
-        
-//        public ListBoxModel doFillCredentialsIdItems(@AncestorInPath Jenkins context) {
-//            if (context == null || !context.hasPermission(Item.CONFIGURE)) {
-//                return new ListBoxModel();
-//            }
-//
-//            List<DomainRequirement> domainRequirements = newArrayList();
-//            return new StandardListBoxModel()
-//                    .withEmptySelection()
-//                    .withMatching(
-//                            CredentialsMatchers.anyOf(
-//                                    CredentialsMatchers.instanceOf(VstartCredentials.class)),
-//                            CredentialsProvider.lookupCredentials(
-//                                    StandardCredentials.class,
-//                                    context,
-//                                    null,
-//                                    domainRequirements));
-//        }
-                
+   
     }
     
     
