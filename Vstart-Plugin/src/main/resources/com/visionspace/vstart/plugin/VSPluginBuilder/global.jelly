@@ -13,7 +13,7 @@
     so it should be straightforward to find them.
   -->
     <f:section title="VSTART">
-	<f:entry title="Web Address" field="vstAddress" 
+	<f:entry title="Web Address" field="vstAddress"
             >
             <f:textbox default="${descriptor.defaultVstAddress()}"/>
         </f:entry>
