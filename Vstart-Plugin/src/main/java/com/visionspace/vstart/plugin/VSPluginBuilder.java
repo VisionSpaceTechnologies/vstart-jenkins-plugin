@@ -229,11 +229,12 @@ public class VSPluginBuilder extends Builder {
             
             try{
                 Vstart vst = new Vstart(this.vstAddress, this.vstUser, this.vstPass);
+                vst.login(this.vstUser, this.vstPass);
                 this.stat = true;
                 ListBoxModel items = new ListBoxModel();
                 
-                for(int j = 0; j < vst.listProjects().length(); j++){
-                    String project =  vst.listProjects().getJSONObject(j).getString("title");
+                for(int j = 0; j < vst.listUserProjects().length(); j++){
+                    String project =  vst.listUserProjects().getJSONObject(j).getString("name");
                     items.add(project);
                 }
                 return items;
