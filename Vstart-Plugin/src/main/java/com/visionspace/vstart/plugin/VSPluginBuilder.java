@@ -45,6 +45,7 @@ public class VSPluginBuilder extends Builder {
     private final String vstAddress;
     private final String credentialsId;
     private long vstProjectId;
+    private long vstTestId;
 
     /**
      * VSPluginBuilder Constructor
@@ -55,12 +56,22 @@ public class VSPluginBuilder extends Builder {
      * @throws URISyntaxException
      */
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
+//    @DataBoundConstructor
+//    public VSPluginBuilder(String vstAddress, String credentialsId, long vstProjectId, int vstTestId) throws URISyntaxException {
+//
+//        this.vstAddress = vstAddress;
+//        this.credentialsId = credentialsId;
+//        this.vstProjectId = vstProjectId;
+//        this.vstTestId = vstTestId;
+//    }
+    
     @DataBoundConstructor
-    public VSPluginBuilder(String vstAddress, String credentialsId, long vstProjectId) throws URISyntaxException {
+    public VSPluginBuilder() throws URISyntaxException {
 
-        this.vstAddress = vstAddress;
-        this.credentialsId = credentialsId;
-        this.vstProjectId = vstProjectId;
+        this.vstAddress = getDescriptor().getVstAddress();
+        this.credentialsId = getDescriptor().getCredentialsId();
+        this.vstProjectId = getDescriptor().getVstProjectId();
+        this.vstTestId = getDescriptor().getVstTestId();
     }
 
     public String getVstAddress() {

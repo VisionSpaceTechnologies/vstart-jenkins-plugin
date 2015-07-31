@@ -24,6 +24,10 @@ function getProjectId(id){
             option.innerHTML = arr[i]["name"];
             testCaseSelect.appendChild(option);
         }
+        if (testCaseSelect.options.length != 0) {
+            testCaseSelect.selectedIndex = 0;
+            getTestId(testCaseSelect.getAttribute("id"));
+        }
 //        document.getElementById("testCase").innerHTML = t.responseObject();
     });
 }
