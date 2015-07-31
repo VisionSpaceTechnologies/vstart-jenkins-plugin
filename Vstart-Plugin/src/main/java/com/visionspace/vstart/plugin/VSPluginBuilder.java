@@ -93,7 +93,8 @@ public class VSPluginBuilder extends Builder {
         private boolean stat;
         private String credentialsId;
         private long vstProjectId;     
-
+        private long vstTestId;
+        
         public Descriptor() {
             load();
         }
@@ -144,6 +145,15 @@ public class VSPluginBuilder extends Builder {
             return this.credentialsId;
         }
 
+        public long getVstTestId() {
+            return vstTestId;
+        }
+
+        @JavaScriptMethod
+        public void setVstTestId(long vstTestId) {
+            this.vstTestId = vstTestId;
+        }
+        
         public void setVstAddress(String s) {
             this.vstAddress = s;
         }
@@ -293,7 +303,8 @@ public class VSPluginBuilder extends Builder {
 
                 for (int j = 0; j < vst.listProjectTestCases(this.vstProjectId).length(); j++) {
                     String project = vst.listProjectTestCases(this.vstProjectId).getJSONObject(j).getString("name");
-                    items.add(project);
+                    String id = vst.listProjectTestCases(this.vstProjectId).getJSONObject(j).getString("name");
+                    items.add(project, id);
                 }
                 return items;
 
@@ -309,10 +320,25 @@ public class VSPluginBuilder extends Builder {
             }
         }
         
+//        @JavaScriptMethod
+//        public ListBoxModel doFillTestCaseItems(String tests){
+//            JSONArray json = new JSONArray(tests);
+//            ListBoxModel items = new ListBoxModel();
+//            
+//            for(int i = 0; i < json.length(); i++){
+//                String test = json.getJSONObject(i).getString("name");
+//                String id = json.getJSONObject(i).getString("id");
+//                items.add(test, id);        
+//            }
+//            
+//            return items;
+//        }
+        
         @JavaScriptMethod
         public String getTestCases(int id) throws URISyntaxException, IOException{
             Vstart vst = new Vstart(this.vstAddress, this.vstUser, this.vstPass);
             JSONArray array = vst.listProjectTestCases(id);
+            setVstProjectId(id);
             JSONObject json = new JSONObject();
                         
             return array.toString();

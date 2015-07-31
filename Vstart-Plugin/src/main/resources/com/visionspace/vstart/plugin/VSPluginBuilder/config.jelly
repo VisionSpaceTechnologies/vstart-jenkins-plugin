@@ -40,7 +40,7 @@
     </f:entry>
         
     <f:entry field="testCase" title="Choose test case">
-        <f:select />
+        <f:select id="testCase" onchange="getTestId('testCase')" />
     </f:entry>
         
 </j:jelly>
