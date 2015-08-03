@@ -22,7 +22,6 @@ import com.visionspace.vstart.api.Vstart;
 import hudson.FilePath;
 import hudson.model.FreeStyleProject;
 import hudson.model.Job;
-import hudson.model.TaskListener;
 import hudson.util.ListBoxModel;
 
 
@@ -60,16 +59,6 @@ public class VSPluginBuilder extends Builder {
      * credentials plugin
      * @throws URISyntaxException
      */
-    // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
-//    @DataBoundConstructor
-//    public VSPluginBuilder(String vstAddress, String credentialsId, long vstProjectId, int vstTestId) throws URISyntaxException {
-//
-//        this.vstAddress = vstAddress;
-//        this.credentialsId = credentialsId;
-//        this.vstProjectId = vstProjectId;
-//        this.vstTestId = vstTestId;
-//    }
-    
     @DataBoundConstructor
     public VSPluginBuilder() throws URISyntaxException {
 
@@ -241,20 +230,6 @@ public class VSPluginBuilder extends Builder {
 
         }
 
-          //Removed because of the integration of the Credentials plugin   
-//        public FormValidation doCheckLogin(@QueryParameter("vstAddress") final String address , 
-//                @QueryParameter("vstUser") final String user, @QueryParameter("vstPass") final String pass) 
-//                throws URISyntaxException, IOException
-//        {
-//            try {   
-//                Vstart v = new Vstart(address, user, pass);
-//                return FormValidation.ok("Valid credentials!");
-//            } catch(HttpResponseException e) {    
-//                return FormValidation.error("Login failed!");
-//            } catch(IOException ex){
-//                return FormValidation.error("Login failed!");
-//            }
-//        }
         @Override
         public boolean isApplicable(Class<? extends AbstractProject> jobType) {
             // Indicates that this builder can be used with all kinds of project types
@@ -277,7 +252,6 @@ public class VSPluginBuilder extends Builder {
                     break;
                 }
             }
-//            setVstProjectId(Long.valueOf(formData.getString("vstProjectId")));
             save();
             return super.configure(req, formData);
         }
@@ -346,21 +320,7 @@ public class VSPluginBuilder extends Builder {
                 return items;
             }
         }
-        
-//        @JavaScriptMethod
-//        public ListBoxModel doFillTestCaseItems(String tests){
-//            JSONArray json = new JSONArray(tests);
-//            ListBoxModel items = new ListBoxModel();
-//            
-//            for(int i = 0; i < json.length(); i++){
-//                String test = json.getJSONObject(i).getString("name");
-//                String id = json.getJSONObject(i).getString("id");
-//                items.add(test, id);        
-//            }
-//            
-//            return items;
-//        }
-        
+
         @JavaScriptMethod
         public String getTestCases(int id) throws URISyntaxException, IOException{
             Vstart vst = new Vstart(this.vstAddress, this.vstUser, this.vstPass);
