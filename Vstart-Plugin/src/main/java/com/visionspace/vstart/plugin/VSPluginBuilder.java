@@ -133,25 +133,11 @@ public class VSPluginBuilder extends Builder {
         
         public Descriptor() {
             load();
+            this.stat = false;
         }
 
         @Override
         public String getDisplayName() {
-            //teste
-            try {
-                Vstart vst = new Vstart(this.vstAddress, this.vstUser, this.vstPass);
-                this.stat = true;
-
-            } catch (IOException e) {
-
-                this.stat = false;
-
-            } catch (URISyntaxException ex) {
-
-                this.stat = false;
-
-            }
-
             return "Execute VSTART tasks.";
         }
 
@@ -170,6 +156,18 @@ public class VSPluginBuilder extends Builder {
         }
 
         public boolean getStat() {
+            
+            try {
+                Vstart vst = new Vstart(this.vstAddress, this.vstUser, this.vstPass);
+                this.stat = true;
+            } catch (URISyntaxException ex) {
+                Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
+                this.stat = false;
+            } catch (IOException ex) {
+                Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
+                this.stat = false;
+            }
+         
             return this.stat;
         }
 
@@ -262,11 +260,6 @@ public class VSPluginBuilder extends Builder {
             // Indicates that this builder can be used with all kinds of project types
             return FreeStyleProject.class.isAssignableFrom(jobType);
         }
-        
-        @JavaScriptMethod
-        public int add(int x, int y) {
-            return x + y;
-        }
 
         @Override
         public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
@@ -293,7 +286,7 @@ public class VSPluginBuilder extends Builder {
 
             try {
                 Vstart vst = new Vstart(this.vstAddress, this.vstUser, this.vstPass);
-                this.stat = true;
+//                this.stat = true;
                 ListBoxModel items = new ListBoxModel();
 
                 for (int j = 0; j < vst.listUserProjects().length(); j++) {
@@ -306,13 +299,13 @@ public class VSPluginBuilder extends Builder {
             } catch (IOException e) {
 
                 ListBoxModel items = new ListBoxModel();
-                this.stat = false;
+//                this.stat = false;
                 return items;
 
             } catch (URISyntaxException ex) {
 
                 ListBoxModel items = new ListBoxModel();
-                this.stat = false;
+//                this.stat = false;
                 return items;
             }
         }
