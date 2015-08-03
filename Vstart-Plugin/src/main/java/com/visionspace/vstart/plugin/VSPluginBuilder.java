@@ -19,6 +19,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.QueryParameter;
 import com.visionspace.vstart.api.Vstart;
+import hudson.FilePath;
 import hudson.model.FreeStyleProject;
 import hudson.model.Job;
 import hudson.model.TaskListener;
@@ -83,20 +84,31 @@ public class VSPluginBuilder extends Builder {
     }
    
     @Override
-    public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) throws IOException {
+    public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
         try {
-            // This is where you 'build' the project.
-            // Since this is a dummy, we just say 'hello world' and call that a build.
-            Vstart vst = new Vstart(vstAddress, getDescriptor().getVstUser(), getDescriptor().getVstPass());
             
-            for(int i = 0; i <= 1000; i++){
-                listener.getLogger().println(i + " Does this run? Answer: " + vst.canRun(vstTestId));
-//                listener.error(i + " Does this run? Answer: " + vst.canRun(vstTestId));
-            }
+            Vstart vst = new Vstart(vstAddress, getDescriptor().getVstUser(), getDescriptor().getVstPass());
+                     
+            listener.getLogger().println(" Does this run? Answer: " + vst.canRun(vstTestId));
+            
+            
         } catch (URISyntaxException ex) {
             Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
         }
-        // This also shows how you can consult the global configuration of the builder
+
+//       VST Report!!
+        
+        String root = build.getWorkspace().toString();
+        FilePath ws = new FilePath(build.getWorkspace(), root + "/VSTART/");
+        
+        if(!ws.exists()){
+            ws.mkdirs();
+        }
+        String path = ws.toString();
+        String jobName = path +"/VSTREPORT_"+ build.getId();
+        PrintWriter wp = new PrintWriter(jobName + ".html", "UTF-8");
+        wp.print("Info on JOB#" + build.getId());
+        wp.close();
         return true;
     }
 
@@ -250,8 +262,6 @@ public class VSPluginBuilder extends Builder {
             // Indicates that this builder can be used with all kinds of project types
             return FreeStyleProject.class.isAssignableFrom(jobType);
         }
-
-        ;
         
         @JavaScriptMethod
         public int add(int x, int y) {
