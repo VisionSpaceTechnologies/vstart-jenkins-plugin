@@ -21,8 +21,8 @@
         var desc = <st:bind value="${descriptor}" />
     </script>
     <script src="${rootURL}/plugin/Vstart-Plugin/project.js" />
-    <f:entry  title="Choose VSTART project">
-        <f:select id="projectsSelect" field="vstProjectId" onchange="getProjectId('projectsSelect')">
+    <f:entry  title="Choose VSTART project" field="vstProjectId" >
+        <f:select id="projectsSelect" onchange="getProjectId('projectsSelect')">
 
         </f:select>    
     </f:entry>

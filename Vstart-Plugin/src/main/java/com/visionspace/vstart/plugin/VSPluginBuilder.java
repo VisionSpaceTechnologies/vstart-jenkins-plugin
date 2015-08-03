@@ -21,15 +21,19 @@ import org.kohsuke.stapler.QueryParameter;
 import com.visionspace.vstart.api.Vstart;
 import hudson.model.FreeStyleProject;
 import hudson.model.Job;
+import hudson.model.TaskListener;
 import hudson.util.ListBoxModel;
 
 
 import javax.servlet.ServletException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import jenkins.model.Jenkins;
 import org.json.JSONArray;
 import org.kohsuke.stapler.AncestorInPath;
@@ -79,10 +83,19 @@ public class VSPluginBuilder extends Builder {
     }
    
     @Override
-    public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) {
-        // This is where you 'build' the project.
-        // Since this is a dummy, we just say 'hello world' and call that a build.
-
+    public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) throws IOException {
+        try {
+            // This is where you 'build' the project.
+            // Since this is a dummy, we just say 'hello world' and call that a build.
+            Vstart vst = new Vstart(vstAddress, getDescriptor().getVstUser(), getDescriptor().getVstPass());
+            
+            for(int i = 0; i <= 1000; i++){
+                listener.getLogger().println(i + " Does this run? Answer: " + vst.canRun(vstTestId));
+//                listener.error(i + " Does this run? Answer: " + vst.canRun(vstTestId));
+            }
+        } catch (URISyntaxException ex) {
+            Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
+        }
         // This also shows how you can consult the global configuration of the builder
         return true;
     }
