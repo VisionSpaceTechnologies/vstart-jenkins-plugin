@@ -32,6 +32,7 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.List;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import jenkins.model.Jenkins;
@@ -50,6 +51,7 @@ public class VSPluginBuilder extends Builder {
     private final String credentialsId;
     private long vstProjectId;
     private long vstTestId;
+
 
     /**
      * VSPluginBuilder Constructor
@@ -71,15 +73,35 @@ public class VSPluginBuilder extends Builder {
     public String getVstAddress() {
         return vstAddress;
     }
-   
+
+    public long getVstProjectId() {
+        return vstProjectId;
+    }
+
+    @JavaScriptMethod
+    public void setVstProjectId(long vstProjectId) {
+        this.vstProjectId = vstProjectId;
+    }
+
+    public long getVstTestId() {
+        return vstTestId;
+    }
+
+    @JavaScriptMethod
+    public void setVstTestId(long vstTestId) {
+        this.vstTestId = vstTestId;
+    }
+    
     @Override
     public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
         try {
             
-            Vstart vst = new Vstart(vstAddress, getDescriptor().getVstUser(), getDescriptor().getVstPass());
-                     
+            Vstart vst = getDescriptor().getVst();
+            vst.login(getDescriptor().getVstUser(), getDescriptor().getVstPass());
             listener.getLogger().println(" Does this run? Answer: " + vst.canRun(vstTestId));
-            
+            listener.getLogger().println("This is my Project ID: " + vstProjectId + "\n And this is my TestCase ID: "+vstTestId);
+            //Closing
+            vst.close();
             
         } catch (URISyntaxException ex) {
             Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
@@ -119,8 +141,11 @@ public class VSPluginBuilder extends Builder {
         private String credentialsId;
         private long vstProjectId;     
         private long vstTestId;
+        private Vstart vst;
+        private int randomId;
         
         public Descriptor() {
+            super(VSPluginBuilder.class);
             load();
             this.stat = false;
         }
@@ -129,8 +154,7 @@ public class VSPluginBuilder extends Builder {
         public String getDisplayName() {
             return "Execute VSTART tasks.";
         }
-
-            
+    
         public String getVstAddress() {
             return this.vstAddress;
         }
@@ -147,8 +171,13 @@ public class VSPluginBuilder extends Builder {
         public boolean getStat() {
             
             try {
-                Vstart vst = new Vstart(this.vstAddress, this.vstUser, this.vstPass);
+                if(vst == null)
+                    setVst(new Vstart(this.vstAddress, this.vstUser, this.vstPass));
+                else
+                    vst.login(vstUser,vstPass);
+                
                 this.stat = true;
+                vst.close();
             } catch (URISyntaxException ex) {
                 Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
                 this.stat = false;
@@ -172,9 +201,27 @@ public class VSPluginBuilder extends Builder {
             return vstTestId;
         }
 
+        public Vstart getVst() {
+            return vst;
+        }
+
+        public int getRandomId() {
+            return randomId;
+        }
+
+        @JavaScriptMethod
+        public void setRandomId(int randomId) {
+            this.randomId = randomId;
+        }
+        
+        public void setVst(Vstart vst) {
+            this.vst = vst;
+        }
+        
         @JavaScriptMethod
         public void setVstTestId(long vstTestId) {
             this.vstTestId = vstTestId;
+            save();
         }
         
         public void setVstAddress(String s) {
@@ -193,8 +240,10 @@ public class VSPluginBuilder extends Builder {
             this.credentialsId = credentialsId;
         }
 
-        public void setVstProjectId(long id) {
-            this.vstProjectId = id;
+        
+        public void setVstProjectId(long vstProjectid) {
+            this.vstProjectId = vstProjectid;
+            save();
         }
 
         /**
@@ -255,31 +304,44 @@ public class VSPluginBuilder extends Builder {
             save();
             return super.configure(req, formData);
         }
-
+        
+        @Override
+        public VSPluginBuilder newInstance(final StaplerRequest req, final JSONObject formData) throws FormException {
+            return req.bindJSON(VSPluginBuilder.class, formData);
+        }
+        
         public ListBoxModel doFillVstProjectIdItems() {
 
             try {
-                Vstart vst = new Vstart(this.vstAddress, this.vstUser, this.vstPass);
+                vst.login(this.getVstUser(), this.getVstPass());
 //                this.stat = true;
                 ListBoxModel items = new ListBoxModel();
-
-                for (int j = 0; j < vst.listUserProjects().length(); j++) {
-                    String project = vst.listUserProjects().getJSONObject(j).getString("name");
-                    String id = Long.toString(vst.listUserProjects().getJSONObject(j).getLong("id"));
-                    items.add(new ListBoxModel.Option(project, id));
+                JSONArray array = vst.listUserProjects();
+                
+                for (int j = 0; j < array.length(); j++) {
+                    String project = array.getJSONObject(j).getString("name");
+                    String id = Long.toString(array.getJSONObject(j).getLong("id"));
+                    if ( id.equals(Long.toString(this.vstProjectId)) ) {
+                        items.add(new ListBoxModel.Option(project, id, true));
+                    } else {
+                        items.add(new ListBoxModel.Option(project, id, false));
+                    }
                 }
+                vst.close();
                 return items;
 
             } catch (IOException e) {
 
                 ListBoxModel items = new ListBoxModel();
-//                this.stat = false;
+                this.stat = false;
+                e.printStackTrace();
                 return items;
 
             } catch (URISyntaxException ex) {
 
                 ListBoxModel items = new ListBoxModel();
-//                this.stat = false;
+                this.stat = false;
+                ex.printStackTrace();
                 return items;
             }
         }
@@ -299,14 +361,20 @@ public class VSPluginBuilder extends Builder {
         public ListBoxModel doFillTestCaseItems() {
 
             try {
-                Vstart vst = new Vstart(this.vstAddress, this.vstUser, this.vstPass);
+                vst.login(this.getVstUser(), this.getVstPass());
                 ListBoxModel items = new ListBoxModel();
+                JSONArray array = vst.listProjectTestCases(this.vstProjectId);
 
-                for (int j = 0; j < vst.listProjectTestCases(this.vstProjectId).length(); j++) {
-                    String project = vst.listProjectTestCases(this.vstProjectId).getJSONObject(j).getString("name");
-                    String id = vst.listProjectTestCases(this.vstProjectId).getJSONObject(j).getString("name");
-                    items.add(project, id);
+                for (int j = 0; j < array.length(); j++) {
+                    String testcase = array.getJSONObject(j).getString("name");
+                    String id = Long.toString(array.getJSONObject(j).getLong("id"));
+                    if ( id.equals(Long.toString(this.vstProjectId)) ) {
+                        items.add(new ListBoxModel.Option(testcase, id, true));
+                    } else {
+                        items.add(new ListBoxModel.Option(testcase, id, false));
+                    }
                 }
+                vst.close();
                 return items;
 
             } catch (IOException e) {
@@ -323,12 +391,17 @@ public class VSPluginBuilder extends Builder {
 
         @JavaScriptMethod
         public String getTestCases(int id) throws URISyntaxException, IOException{
-            Vstart vst = new Vstart(this.vstAddress, this.vstUser, this.vstPass);
+            vst.login(this.getVstUser(), this.getVstPass());
             JSONArray array = vst.listProjectTestCases(id);
             setVstProjectId(id);
-            JSONObject json = new JSONObject();
+            vst.close();
                         
             return array.toString();
+        }
+        
+        @JavaScriptMethod
+        public int getRandomIdentifier(){
+            return new Random().nextInt(1000);
         }
         
     }

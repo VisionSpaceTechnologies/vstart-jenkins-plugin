@@ -1,28 +1,14 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-    <!--    Teste de script-->
-<!--    <script type="type/javascript" >  
-            function fieldSelected(id, function(){
-                console.log("O id do projecto é " + id);
-            });
-    </script>-->
-<!--    <div id="msg" />
-    <script type="type/javascript">
-        var foo = <st:bind value="${descriptor}"/>
-
-        function test() {
-            console.log("Entered test");
-            foo.add(1,5, function(t) {
-                console.log(t.responseObject());
-                document.getElementById('msg').innerHTML = t.responseObject();
-            });
-        }
-    </script>-->
     <script>
-        var desc = <st:bind value="${descriptor}" />
+        var desc = <st:bind value="${descriptor}" />;
+        var builder = <st:bind value="${instance}" />
+        ${descriptor.setRandomId(descriptor.getRandomIdentifier())}
     </script>
     <script src="${rootURL}/plugin/Vstart-Plugin/project.js" />
+    <!--Get random value-->
+    
     <f:entry  title="Choose VSTART project" field="vstProjectId" >
-        <f:select id="projectsSelect" onchange="getProjectId('projectsSelect')">
+        <f:select id="projectsSelect${descriptor.getRandomId()}" onchange="getProjectId(id, 'testCase${descriptor.getRandomId()}')">
 
         </f:select>    
     </f:entry>
@@ -40,7 +26,7 @@
     </f:entry>
         
     <f:entry field="testCase" title="Choose test case">
-        <f:select id="testCase" onchange="getTestId('testCase')" />
+        <f:select id="testCase${descriptor.getRandomId()}" onchange="getTestId(id)" />
     </f:entry>
         
 </j:jelly>
