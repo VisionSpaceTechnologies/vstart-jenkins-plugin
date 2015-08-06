@@ -1,32 +1,36 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+    <j:set var="randomId" value="${descriptor.getRandomIdentifier()}"></j:set>
     <script>
         var desc = <st:bind value="${descriptor}" />;
-        var builder = <st:bind value="${instance}" />
-        ${descriptor.setRandomId(descriptor.getRandomIdentifier())}
+        var instance = <st:bind value="${instance}" />;
     </script>
     <script src="${rootURL}/plugin/Vstart-Plugin/project.js" />
     <!--Get random value-->
     
     <f:entry  title="Choose VSTART project" field="vstProjectId" >
-        <f:select id="projectsSelect${descriptor.getRandomId()}" onchange="getProjectId(id, 'testCase${descriptor.getRandomId()}')">
-
+        <f:select id="projectsSelect${randomId}" >
+        
         </f:select>    
     </f:entry>
     
     <f:entry title="Status">
         <j:if test="${descriptor.getStat()}" >
             <!--We found ${descriptor.getStat()}-->
-            <img src="${rootURL}/plugin/Vstart-Plugin/images/green-icon.png" width="30" height="30" />
+            <img id="imgStat${randomId}" src="${rootURL}/plugin/Vstart-Plugin/images/green-icon.png" width="30" height="30" />
         </j:if>
             
         <j:if test="${!descriptor.getStat()}">
             <!--We found ${!descriptor.getStat()}-->
-            <img src="${rootURL}/plugin/Vstart-Plugin/images/red-icon.png" width="50" height="50" />
+            <img id="imgStat${randomId}" src="${rootURL}/plugin/Vstart-Plugin/images/red-icon.png" width="50" height="50" />
         </j:if>
     </f:entry>
         
-    <f:entry field="testCase" title="Choose test case">
-        <f:select id="testCase${descriptor.getRandomId()}" onchange="getTestId(id)" />
+    <f:entry title="Choose test case" field="testCase" >
+        <f:select id="testCase${randomId}"  onchange="getTestId(id)" />
     </f:entry>
-        
+    
+    <script>
+        getProjectId("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}");
+        document.getElementById("projectsSelect${randomId}").addEventListener("onchange", getProjectId("projectsSelect${randomId}", 'testCase${randomId}', 'imgStat${randomId}'));        
+    </script>
 </j:jelly>

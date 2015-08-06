@@ -8,37 +8,67 @@ function test(){
     window.alert("What? Is this a test?");
 }
 
-function getProjectId(id, testcasesId){
+
+var array;
+
+function getProjectId(id, testcasesId, imgId){
     select = document.getElementById(id);
     option = select.options[select.selectedIndex];
+    window.testCaseSelect = document.getElementById(testcasesId);
     
-    projId = option.getAttribute("value");
-    builder.setVstProjectId(projId);
-//    window.alert(projId);
-    desc.getTestCases(projId, function(t){
-//        window.alert(t.responseObject());
-        testCaseSelect = document.getElementById(testcasesId);
-        testCaseSelect.options.length = 0;  //This guarantees that the dropdown doesn't have repeated options
-        arr = JSON.parse(t.responseObject());
-        for( var i = 0; i < arr.length; ++i) {
-            option = document.createElement("option");
-            option.setAttribute("value", arr[i]["id"]);
-            option.innerHTML = arr[i]["name"];
-            testCaseSelect.appendChild(option);
-        }
-        if (testCaseSelect.options.length !== 0) {
-            testCaseSelect.selectedIndex = 0;
-            getTestId(testCaseSelect.getAttribute("id"));
-        }
-//        document.getElementById("testCase").innerHTML = t.responseObject();
-    });
+    
+    if (option !== undefined) {
+        projId = option.getAttribute("value");
+        instance.setVstProjectId(projId);
+    //    window.alert(projId);
+        instance.getTestCases(projId, function(t){
+    //        window.alert(t.responseObject());
+            
+            window.testCaseSelect.options.length = 0;  //This guarantees that the dropdown doesn't have repeated options
+            array = JSON.parse(t.responseObject());
+            for( var i = 0; i < array.length; ++i) {
+                option = document.createElement("option");
+//                if(arr[i]["id"] == instance.getTestCase()){
+//                    option.setAttribute("selected", true);
+//                }
+                option.setAttribute("value", array[i]["id"]);
+                option.innerHTML = array[i]["name"];
+                window.testCaseSelect.appendChild(option);
+            }
+           
+            instance.getTestCase(function(t){
+                option = testCaseSelect.options;
+                for(var i = 0; i < array.length; i++){
+                    if(array[i]["id"] == t.responseObject())
+                        option[i].setAttribute("selected", true);
+                }
+            });
+    //        document.getElementById("testCase").innerHTML = t.responseObject();
+        });
+        if (window.testCaseSelect.options.length !== 0) {
+                window.testCaseSelect.selectedIndex = 0;
+                getTestId(window.testCaseSelect.getAttribute("id"));
+            }
+    }
+    else{ 
+        select.remove();
+        desc.setStat = false;
+//        document.getElementById(imgId).innerHTML = '<img src="http://localhost:8080/jenkins/plugin/Vstart-Plugin/images/red-icon.png">'
+        document.getElementById(imgId).remove();
+        document.getElementById(testcasesId).remove();
+        window.alert("Connection with VSTART server is compromised.");
+        
+    }
 }
 
 function getTestId(id){
     select = document.getElementById(id);
     option = select.options[select.selectedIndex];
     
-    testId = option.getAttribute("value");
-    builder.setVstTestId(testId);
-//    window.alert(testId);
+    if (option !== undefined) {
+        testId = option.getAttribute("value");
+        instance.setTestCase(testId);
+    //    window.alert(testId);
+    }
 }
+
