@@ -3,7 +3,7 @@
     <script>
         var desc = <st:bind value="${descriptor}" />;
         var instance = <st:bind value="${instance}" />;
-        var tstId = <st:bind value="${instance.getTestCase}" />
+        
         setTimeout('getProjectId("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}")', 1500);
     </script>
     <script src="${rootURL}/plugin/Vstart-Plugin/project.js" />
