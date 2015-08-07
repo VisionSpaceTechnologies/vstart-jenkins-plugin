@@ -5,8 +5,6 @@
         var instance = <st:bind value="${instance}" />;
         
         setTimeout('getProjectId("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}")', 1500);
-        //setTimeout('getTestId("testCase${randomId}")', 2000);
-        //getTestId("testCase${randomId}");
     </script>
     <script src="${rootURL}/plugin/Vstart-Plugin/project.js" />
     <!--Get random value-->
@@ -30,7 +28,7 @@
     </f:entry>
         
     <f:entry title="Choose test case" field="testCase" >
-        <f:select id="testCase${randomId}"  onchange="getTestId(id)" />
+        <f:select id="testCase${randomId}" />
     </f:entry>
     
     <script>

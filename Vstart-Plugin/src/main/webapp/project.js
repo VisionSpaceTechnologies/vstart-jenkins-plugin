@@ -17,7 +17,7 @@ function getProjectId(id, testcasesId, imgId) {
     if (option !== undefined) {
         projId = option.getAttribute("value");
         if (instance !== null) {
-            instance.setVstProjectId(projId);
+            //instance.setVstProjectId(projId);
       //    window.alert(projId);
             instance.getTestCases(projId, function (t) {
   //        window.alert(t.responseObject());
@@ -81,16 +81,16 @@ function getProjectId(id, testcasesId, imgId) {
         }
 }
 
-function getTestId(id) {
-    select = document.getElementById(id);
-    option = select.options[select.selectedIndex];
-
-    if (option !== undefined) {
-        testId = option.getAttribute("value");
-        if (instance !== null){
-            instance.setTestCase(testId);
-        }    
-//    window.alert(testId);
-    }
-}
+//function getTestId(id) {
+//    select = document.getElementById(id);
+//    option = select.options[select.selectedIndex];
+//
+//    if (option !== undefined) {
+//        testId = option.getAttribute("value");
+////        if (instance !== null){
+////            instance.setTestCase(testId);
+////        }    
+////    window.alert(testId);
+//    }
+//}
 
