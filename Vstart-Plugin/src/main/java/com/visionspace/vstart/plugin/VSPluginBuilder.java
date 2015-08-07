@@ -82,7 +82,7 @@ public class VSPluginBuilder extends Builder {
         Vstart vst = getDescriptor().getVst();
         //vst.login(vstUser, vstPass);
         JSONArray array = vst.listProjectTestCases(id);
-        setVstProjectId(id);
+        //setVstProjectId(id);
         //vst.close();
 
         return array.toString();
@@ -144,6 +144,8 @@ public class VSPluginBuilder extends Builder {
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
     public static class Descriptor extends BuildStepDescriptor<Builder> {
 
+        public int incSeconds = 0;
+        
         private String vstAddress;
         private String vstUser;
         private String vstPass;
@@ -160,6 +162,12 @@ public class VSPluginBuilder extends Builder {
             vst = null;
             //end.
             this.stat = false;
+        }
+        
+        public int getIncSeconds() {
+            int ret = incSeconds;
+            incSeconds += 3000;
+            return ret;
         }
 
         @Override
