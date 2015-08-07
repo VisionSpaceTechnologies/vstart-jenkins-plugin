@@ -2,15 +2,20 @@
     <j:set var="randomId" value="${descriptor.getRandomIdentifier()}"></j:set>
     <script>
         var desc = <st:bind value="${descriptor}" />;
-        var instance = <st:bind value="${instance}" />;
+<!--        var instance = <st:bind value="${instance}" />;-->
         
-        setTimeout('getProjectId("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}")', 1500);
+        function run${randomId}(){
+            instance${randomId} = <st:bind value="${instance}" />;
+            setTimeout('getProjectId("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}", instance${randomId})', 1500);
+        };
+        
+        run${randomId}(); 
     </script>
     <script src="${rootURL}/plugin/Vstart-Plugin/project.js" />
     <!--Get random value-->
     
     <f:entry  title="Choose VSTART project" field="vstProjectId" >
-        <f:select id="projectsSelect${randomId}" onchange= 'getProjectId("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}")'>
+        <f:select id="projectsSelect${randomId}" onchange= 'getProjectId("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}", instance${randomId})'>
         
         </f:select>    
     </f:entry>
@@ -32,7 +37,7 @@
     </f:entry>
     
     <script>
-<!--        //getProjectId("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}");
-        //document.getElementById("projectsSelect${randomId}").addEventListener("onchange", getProjectId("projectsSelect${randomId}", 'testCase${randomId}', 'imgStat${randomId}'));        -->
+<!--        getProjectId("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}");-->
+        //document.getElementById("projectsSelect${randomId}").addEventListener("onchange", getProjectId("projectsSelect${randomId}", 'testCase${randomId}', 'imgStat${randomId}'));        
     </script>
 </j:jelly>
