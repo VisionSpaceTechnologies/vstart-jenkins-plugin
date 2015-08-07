@@ -5,6 +5,8 @@
         var instance = <st:bind value="${instance}" />;
         
         setTimeout('getProjectId("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}")', 1500);
+        //setTimeout('getTestId("testCase${randomId}")', 2000);
+        //getTestId("testCase${randomId}");
     </script>
     <script src="${rootURL}/plugin/Vstart-Plugin/project.js" />
     <!--Get random value-->
@@ -32,7 +34,7 @@
     </f:entry>
     
     <script>
-        //getProjectId("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}");
-        //document.getElementById("projectsSelect${randomId}").addEventListener("onchange", getProjectId("projectsSelect${randomId}", 'testCase${randomId}', 'imgStat${randomId}'));        
+<!--        //getProjectId("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}");
+        //document.getElementById("projectsSelect${randomId}").addEventListener("onchange", getProjectId("projectsSelect${randomId}", 'testCase${randomId}', 'imgStat${randomId}'));        -->
     </script>
 </j:jelly>
