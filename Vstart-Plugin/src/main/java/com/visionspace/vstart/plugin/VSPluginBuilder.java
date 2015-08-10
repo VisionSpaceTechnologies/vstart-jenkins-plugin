@@ -14,7 +14,6 @@ import hudson.model.BuildListener;
 import hudson.model.AbstractProject;
 import hudson.tasks.Builder;
 import hudson.tasks.BuildStepDescriptor;
-import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.QueryParameter;
@@ -36,6 +35,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import jenkins.model.Jenkins;
 import org.json.JSONArray;
+import net.sf.json.JSONObject;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.bind.JavaScriptMethod;
 
@@ -105,12 +105,46 @@ public class VSPluginBuilder extends Builder {
 
     @Override
     public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
+        
+        org.json.JSONObject runObject = null; //There are two types of JSONObject in conflict throughout the code
+        org.json.JSONObject logger = null;
+        Object obj = new Object();
+        long timeInterval = 2000;
+        
         try {
 
             Vstart vst = getDescriptor().getVst();
             //vst.login(getDescriptor().getVstUser(), getDescriptor().getVstPass());
             listener.getLogger().println(" Does this run? Answer: " + vst.canRun(testCase));
             listener.getLogger().println("This is my Project ID: " + vstProjectId + "\n And this is my TestCase ID: " + testCase);
+            
+            runObject = vst.run(testCase);
+            logger = vst.getLog(runObject.getLong("reportId"), 0l);
+            
+            synchronized(obj){
+                while(!logger.getBoolean("finished")) {
+                    long timeStamp = 0;
+                    JSONArray jArray = logger.getJSONArray("log");
+                    for(int i = 0; i < jArray.length(); i++){
+                        org.json.JSONObject json = jArray.getJSONObject(i);
+                        listener.getLogger().println(json.getString("level") +
+                                " " + json.getLong("timestamp") + " [" + 
+                                json.getString("resource") + "]" + " - " +
+                                json.getString("message"));
+
+                        //Stores the last timestamp
+                        if(i == jArray.length() - 1){
+                            timeStamp = json.getLong("timestamp");
+                        }
+                    }    
+                        if(!logger.getBoolean("finished")){
+                            obj.wait(timeInterval);
+                            logger = vst.getLog(runObject.getLong("reportId"), timeStamp);
+                        } else {
+                            break;
+                        }
+                    }
+            }    
             //Closing
             vst.close();
 
