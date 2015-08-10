@@ -7,19 +7,24 @@
         function run${randomId}(){
             instance${randomId} = <st:bind value="${instance}" />;
             setTimeout('getProjectId("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}", instance${randomId})', 1500);
+            
         };
         
-        run${randomId}(); 
+       run${randomId}();
+            
+<!--        var event = new Event("projectsFill");
+        document.addEventListener("projectsFill", function(e) {
+            getProjectId("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}", instance${randomId})
+                }, false);-->
     </script>
     <script src="${rootURL}/plugin/Vstart-Plugin/project.js" />
     <!--Get random value-->
     
     <f:entry  title="Choose VSTART project" field="vstProjectId" >
         <f:select id="projectsSelect${randomId}" onchange= 'getProjectId("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}", instance${randomId})'>
-        
         </f:select>    
     </f:entry>
-    
+        
     <f:entry title="Status">
         <j:if test="${descriptor.getStat()}" >
             <!--We found ${descriptor.getStat()}-->
