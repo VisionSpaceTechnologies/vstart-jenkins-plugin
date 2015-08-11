@@ -382,40 +382,40 @@ public class VSPluginBuilder extends Builder {
 
         public ListBoxModel doFillVstProjectIdItems() {
 
-            return new ListBoxModel();
+//            return new ListBoxModel();
             
-//            try {
-//                vst.login(this.getVstUser(), this.getVstPass());
-////                this.stat = true;
-//                ListBoxModel items = new ListBoxModel();
-//                JSONArray array = vst.listUserProjects();
-//
-//                for (int j = 0; j < array.length(); j++) {
-//                    String project = array.getJSONObject(j).getString("name");
-//                    String id = Long.toString(array.getJSONObject(j).getLong("id"));
-//                    //if ( id.equals(Long.toString(this.vstProjectId)) ) {
-//                    //    items.add(new ListBoxModel.Option(project, id, true));
-//                    //} else {
-//                    items.add(new ListBoxModel.Option(project, id, false));
-//                    //}
-//                }
-//                vst.close();
-//                return items;
-//
-//            } catch (IOException e) {
-//
-//                ListBoxModel items = new ListBoxModel();
-//                this.stat = false;
-//                e.printStackTrace();
-//                return items;
-//
-//            } catch (URISyntaxException ex) {
-//
-//                ListBoxModel items = new ListBoxModel();
-//                this.stat = false;
-//                ex.printStackTrace();
-//                return items;
-//            }
+            try {
+                vst.login(this.getVstUser(), this.getVstPass());
+//                this.stat = true;
+                ListBoxModel items = new ListBoxModel();
+                JSONArray array = vst.listUserProjects();
+
+                for (int j = 0; j < array.length(); j++) {
+                    String project = array.getJSONObject(j).getString("name");
+                    String id = Long.toString(array.getJSONObject(j).getLong("id"));
+                    //if ( id.equals(Long.toString(this.vstProjectId)) ) {
+                    //    items.add(new ListBoxModel.Option(project, id, true));
+                    //} else {
+                    items.add(new ListBoxModel.Option(project, id, false));
+                    //}
+                }
+                vst.close();
+                return items;
+
+            } catch (IOException e) {
+
+                ListBoxModel items = new ListBoxModel();
+                this.stat = false;
+                e.printStackTrace();
+                return items;
+
+            } catch (URISyntaxException ex) {
+
+                ListBoxModel items = new ListBoxModel();
+                this.stat = false;
+                ex.printStackTrace();
+                return items;
+            }
         }
 
         public ListBoxModel doFillCredentialsIdItems(@AncestorInPath Job<?, ?> owner) {
@@ -430,37 +430,37 @@ public class VSPluginBuilder extends Builder {
                     CredentialsProvider.lookupCredentials(StandardUsernameCredentials.class, owner, null, domainRequirements));
         }
 
-        public ListBoxModel doFillTestCaseItems() {
+        public ListBoxModel doFillTestCaseItems(@QueryParameter("vstProjectId") final long vstProjectId) {
 
-            return new ListBoxModel();
+//            return new ListBoxModel();
 
-////            try {
-////                vst.login(this.getVstUser(), this.getVstPass());
-////                ListBoxModel items = new ListBoxModel();
-////                JSONArray array = vst.listProjectTestCases(this.vstProjectId);
-////
-////                for (int j = 0; j < array.length(); j++) {
-////                    String testcase = array.getJSONObject(j).getString("name");
-////                    String id = Long.toString(array.getJSONObject(j).getLong("id"));
-////                    if ( id.equals(Long.toString(this.vstProjectId)) ) {
-////                        items.add(new ListBoxModel.Option(testcase, id, true));
-////                    } else {
-////                        items.add(new ListBoxModel.Option(testcase, id, false));
-////                    }
-////                }
-////                vst.close();
-////                return items;
-////
-////            } catch (IOException e) {
-////
-////                ListBoxModel items = new ListBoxModel();
-////                return items;
-////
-////            } catch (URISyntaxException ex) {
-////
-////                ListBoxModel items = new ListBoxModel();
-////                return items;
-////            }
+            try {
+                vst.login(this.getVstUser(), this.getVstPass());
+                ListBoxModel items = new ListBoxModel();
+                JSONArray array = vst.listProjectTestCases(vstProjectId);
+
+                for (int j = 0; j < array.length(); j++) {
+                    String testcase = array.getJSONObject(j).getString("name");
+                    String id = Long.toString(array.getJSONObject(j).getLong("id"));
+                    if ( id.equals(Long.toString(vstProjectId)) ) {
+                        items.add(new ListBoxModel.Option(testcase, id, true));
+                    } else {
+                        items.add(new ListBoxModel.Option(testcase, id, false));
+                    }
+                }
+                vst.close();
+                return items;
+
+            } catch (IOException e) {
+
+                ListBoxModel items = new ListBoxModel();
+                return items;
+
+            } catch (URISyntaxException ex) {
+
+                ListBoxModel items = new ListBoxModel();
+                return items;
+            }
         }
 
         @JavaScriptMethod

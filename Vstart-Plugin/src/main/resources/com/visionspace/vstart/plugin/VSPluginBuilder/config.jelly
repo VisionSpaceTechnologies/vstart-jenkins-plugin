@@ -7,7 +7,7 @@
         
         function run${randomId}(){
             instance${randomId} = <st:bind value="${instance}" />;
-            setTimeout('FillDropDowns("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}", instance${randomId})', 1500);
+            <!--setTimeout('FillDropDowns("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}", instance${randomId})', 1500);-->
             <!--FillDropDowns("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}", instance${randomId});-->
             
         };
@@ -22,7 +22,7 @@
      <!--Get random value-->
     
     <f:entry  title="Choose VSTART project" field="vstProjectId" >
-        <f:select id="projectsSelect${randomId}" field="vstProjectId" onchange= 'getProjectId("projectsSelect${randomId}", "testCase${randomId}", instance${randomId})'>
+        <f:select id="projectsSelect${randomId}" field="vstProjectId" onchange='updateListBox(testCase${randomId}, "testCase?vstProjectId"+encode(this.field))'>
         
         </f:select>    
     </f:entry>
