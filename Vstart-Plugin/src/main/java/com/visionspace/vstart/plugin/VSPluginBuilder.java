@@ -73,19 +73,9 @@ public class VSPluginBuilder extends Builder {
         return vstAddress;
     }
 
+    @JavaScriptMethod
     public long getVstProjectId() {
         return vstProjectId;
-    }
-
-    @JavaScriptMethod
-    public String getTestCases(int id) throws URISyntaxException, IOException {
-        Vstart vst = getDescriptor().getVst();
-        //vst.login(vstUser, vstPass);
-        JSONArray array = vst.listProjectTestCases(id);
-        //setVstProjectId(id);
-        //vst.close();
-
-        return array.toString();
     }
 
     @JavaScriptMethod
@@ -103,6 +93,24 @@ public class VSPluginBuilder extends Builder {
         this.testCase = testCase;
     }
 
+    @JavaScriptMethod
+    public String getTestCases(int id) throws URISyntaxException, IOException {
+        Vstart vst = getDescriptor().getVst();
+        //vst.login(vstUser, vstPass);
+        JSONArray array = vst.listProjectTestCases(id);
+        //setVstProjectId(id);
+        //vst.close();
+
+        return array.toString();
+    }
+    
+    @JavaScriptMethod
+    public String getProjects() throws URISyntaxException, IOException {
+        Vstart vst = getDescriptor().getVst();
+        JSONArray array = vst.listUserProjects();
+        return array.toString();
+    }
+    
     @Override
     public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
         
@@ -374,38 +382,40 @@ public class VSPluginBuilder extends Builder {
 
         public ListBoxModel doFillVstProjectIdItems() {
 
-            try {
-                vst.login(this.getVstUser(), this.getVstPass());
-//                this.stat = true;
-                ListBoxModel items = new ListBoxModel();
-                JSONArray array = vst.listUserProjects();
-
-                for (int j = 0; j < array.length(); j++) {
-                    String project = array.getJSONObject(j).getString("name");
-                    String id = Long.toString(array.getJSONObject(j).getLong("id"));
-                    //if ( id.equals(Long.toString(this.vstProjectId)) ) {
-                    //    items.add(new ListBoxModel.Option(project, id, true));
-                    //} else {
-                    items.add(new ListBoxModel.Option(project, id, false));
-                    //}
-                }
-                vst.close();
-                return items;
-
-            } catch (IOException e) {
-
-                ListBoxModel items = new ListBoxModel();
-                this.stat = false;
-                e.printStackTrace();
-                return items;
-
-            } catch (URISyntaxException ex) {
-
-                ListBoxModel items = new ListBoxModel();
-                this.stat = false;
-                ex.printStackTrace();
-                return items;
-            }
+            return new ListBoxModel();
+            
+//            try {
+//                vst.login(this.getVstUser(), this.getVstPass());
+////                this.stat = true;
+//                ListBoxModel items = new ListBoxModel();
+//                JSONArray array = vst.listUserProjects();
+//
+//                for (int j = 0; j < array.length(); j++) {
+//                    String project = array.getJSONObject(j).getString("name");
+//                    String id = Long.toString(array.getJSONObject(j).getLong("id"));
+//                    //if ( id.equals(Long.toString(this.vstProjectId)) ) {
+//                    //    items.add(new ListBoxModel.Option(project, id, true));
+//                    //} else {
+//                    items.add(new ListBoxModel.Option(project, id, false));
+//                    //}
+//                }
+//                vst.close();
+//                return items;
+//
+//            } catch (IOException e) {
+//
+//                ListBoxModel items = new ListBoxModel();
+//                this.stat = false;
+//                e.printStackTrace();
+//                return items;
+//
+//            } catch (URISyntaxException ex) {
+//
+//                ListBoxModel items = new ListBoxModel();
+//                this.stat = false;
+//                ex.printStackTrace();
+//                return items;
+//            }
         }
 
         public ListBoxModel doFillCredentialsIdItems(@AncestorInPath Job<?, ?> owner) {
@@ -468,7 +478,13 @@ public class VSPluginBuilder extends Builder {
 
             return array.toString();
         }
-
+        
+        @JavaScriptMethod
+        public String getProjects() throws URISyntaxException, IOException {
+            Vstart vst = this.getVst();
+            JSONArray array = vst.listUserProjects();
+            return array.toString();
+        }
     }
 
 }

@@ -10,31 +10,92 @@ function test() {
 
 
 var array;
-function getProjectId(id, testcasesId, imgId, thisInstance) {
+function FillDropDowns(id, testcasesId, imgId, thisInstance) {
     select = document.getElementById(id);
-    option = select.options[select.selectedIndex];
-    if (option !== undefined) {
-        projId = option.getAttribute("value");
-        if (thisInstance !== null) {
-            testCaseSelect = document.getElementById(testcasesId);
-            if (testCaseSelect.options.length !== 0) {
-                testCaseSelect.selectedIndex = 0;
-            }
-            callbackObject = new GetTestCasesCallBack(thisInstance, testcasesId);
-            thisInstance.getTestCases(projId, callbackObject.callback);
-        }
-        else {
-            callbackObject = new GetTestCasesFirstTimeCallBack(desc, testcasesId);
-            
-            desc.getTestCases(projId, callbackObject.callback);
-        }
+    //Get Projects
+    if(thisInstance !== null){
+        //gets projects with instance
+        callbackObject = new GetProjectsCallBack(thisInstance, id, testcasesId);
+        thisInstance.getProjects(callbackObject.callback);
+    } else {
+        //gets projects with descriptor
+        callbackObject = new GetProjectsFirstTimeCallBack(desc, id, testcasesId);
+        desc.getProjects(callbackObject.callback);
     }
-    else {
-        select.remove();
-        desc.setStat = false;
-        document.getElementById(imgId).remove();
-        document.getElementById(testcasesId).remove();
-        window.alert("Connection with VSTART server is compromised.");
+}
+
+function getProjectId(projectSelectId, testcasesId, thisInstance){
+    select = document.getElementById(projectSelectId);
+    option = select.options[select.selectedIndex];
+    projId = option.getAttribute("value");
+    if(thisInstance !== null){
+        callbackObject = new GetTestCasesFirstTimeCallBack(thisInstance, testcasesId);
+        thisInstance.getTestCases(projId, callbackObject.callback);
+    } else {
+        callbackObject = new GetTestCasesFirstTimeCallBack(desc, testcasesId);
+        desc.getTestCases(projId, callbackObject.callback);
+    }     
+}
+
+var GetProjectsFirstTimeCallBack = function(descriptor, projectSelectId, testcasesId){
+    this.descriptor = descriptor;
+    this.projectSelectedId = projectSelectId;
+    this.testcasesId = testcasesId;
+    var self = this;
+    GetProjectsFirstTimeCallBack.prototype.callback = function(t){
+        projectSelect = document.getElementById(self.projectSelectedId);
+        projectSelect.options.length = 0;
+        array = JSON.parse(t.responseObject());
+        for (var i = 0; i < array.length; ++i) {
+            option = document.createElement("option");
+            option.setAttribute("value", array[i]["id"]);
+            option.innerHTML = array[i]["name"];
+            projectSelect.appendChild(option);
+        }
+        projId = projectSelect.options[projectSelect.selectedIndex].getAttribute("value");
+        callbackObject = new GetTestCasesFirstTimeCallBack(self.descriptor, self.testcasesId);
+        self.descriptor.getTestCases(projId, callbackObject.callback);
+    }
+}
+
+var GetProjectsCallBack = function(thisInstance, projectSelectId, testcasesId){
+    this.thisInstance = thisInstance;
+    this.projectSelectedId = projectSelectId;
+    this.testcasesId = testcasesId;
+    var self = this;
+    GetProjectsCallBack.prototype.callback = function(t){
+        projectSelect = document.getElementById(self.projectSelectedId);
+        projectSelect.options.length = 0;
+        array = JSON.parse(t.responseObject());
+        for (var i = 0; i < array.length; ++i) {
+            option = document.createElement("option");
+            option.setAttribute("value", array[i]["id"]);
+            option.innerHTML = array[i]["name"];
+            projectSelect.appendChild(option);
+        }
+        //Check the latest stored project
+        callBackObject = new ProjectSelectedCallBack(self.projectSelectedId, self.testcasesId, self.thisInstance);
+        self.thisInstance.getVstProjectId(callBackObject.callback);
+        
+    }
+}
+
+var ProjectSelectedCallBack = function(projectSelectId, testcasesId, thisInstance){
+    this.projectSelectId = projectSelectId;
+    this.testcasesId = testcasesId;
+    this.thisInstance = thisInstance;
+    var self = this;
+    ProjectSelectedCallBack.prototype.callback = function(t) {
+        projectSelect = document.getElementById(self.projectSelectId);
+        for (i = 0; i < projectSelect.options.length; i++){
+            if (projectSelect.options[i]["value"] === t.responseObject()) {
+                projectSelect.options[i].setAttribute("selected", true);
+            }
+        }
+        //List respective tests
+        projId = projectSelect.options[projectSelect.selectedIndex].getAttribute("value");
+        callbackObject = new GetTestCasesCallBack(self.thisInstance, self.testcasesId);
+        thisInstance.getTestCases(projId, callbackObject.callback);
     }
 }
 
@@ -79,9 +140,10 @@ var TestCaseSelectedCallBack = function(idTestCaseSelect) {
     var self = this;
     TestCaseSelectedCallBack.prototype.callback = function(t){
         testCaseSelect = document.getElementById(self.idTestCaseSelect);
-        for (i = 0; i < testCaseSelect.options.length; i++)
+        for (i = 0; i < testCaseSelect.options.length; i++){
             if (testCaseSelect.options[i]["value"] == t.responseObject()) {
                 testCaseSelect.options[i].setAttribute("selected", true);
             }
+        }
     }
 }

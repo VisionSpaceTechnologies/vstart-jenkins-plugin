@@ -1,12 +1,14 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
     <j:set var="randomId" value="${descriptor.getRandomIdentifier()}"></j:set>
+    <script src="${rootURL}/plugin/Vstart-Plugin/project.js" />
     <script>
         var desc = <st:bind value="${descriptor}" />;
 <!--        var instance = <st:bind value="${instance}" />;-->
         
         function run${randomId}(){
             instance${randomId} = <st:bind value="${instance}" />;
-            setTimeout('getProjectId("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}", instance${randomId})', 1500);
+            <!--setTimeout('FillDropDowns("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}", instance${randomId})', 1500);-->
+            FillDropDowns("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}", instance${randomId});
             
         };
         
@@ -17,11 +19,11 @@
             getProjectId("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}", instance${randomId})
                 }, false);-->
     </script>
-    <script src="${rootURL}/plugin/Vstart-Plugin/project.js" />
-    <!--Get random value-->
+     <!--Get random value-->
     
     <f:entry  title="Choose VSTART project" field="vstProjectId" >
-        <f:select id="projectsSelect${randomId}" onchange= 'getProjectId("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}", instance${randomId})'>
+        <f:select id="projectsSelect${randomId}" field="vstProjectId" onchange= 'getProjectId("projectsSelect${randomId}", "testCase${randomId}", instance${randomId})'>
+        
         </f:select>    
     </f:entry>
         
@@ -38,7 +40,7 @@
     </f:entry>
         
     <f:entry title="Choose test case" field="testCase" >
-        <f:select id="testCase${randomId}" />
+        <f:select id="testCase${randomId}" field="testCase" />
     </f:entry>
     
     <script>
