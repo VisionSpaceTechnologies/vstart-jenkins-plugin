@@ -88,7 +88,7 @@ var ProjectSelectedCallBack = function(projectSelectId, testcasesId, thisInstanc
     ProjectSelectedCallBack.prototype.callback = function(t) {
         projectSelect = document.getElementById(self.projectSelectId);
         for (i = 0; i < projectSelect.options.length; i++){
-            if (projectSelect.options[i]["value"] === t.responseObject()) {
+            if (projectSelect.options[i].getAttribute("value") == t.responseObject()) {
                 projectSelect.options[i].setAttribute("selected", true);
             }
         }
@@ -141,7 +141,7 @@ var TestCaseSelectedCallBack = function(idTestCaseSelect) {
     TestCaseSelectedCallBack.prototype.callback = function(t){
         testCaseSelect = document.getElementById(self.idTestCaseSelect);
         for (i = 0; i < testCaseSelect.options.length; i++){
-            if (testCaseSelect.options[i]["value"] == t.responseObject()) {
+            if (testCaseSelect.options[i].getAttribute("value") == t.responseObject()) {
                 testCaseSelect.options[i].setAttribute("selected", true);
             }
         }

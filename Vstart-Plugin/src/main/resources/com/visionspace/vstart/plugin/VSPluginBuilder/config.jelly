@@ -7,8 +7,8 @@
         
         function run${randomId}(){
             instance${randomId} = <st:bind value="${instance}" />;
-            <!--setTimeout('FillDropDowns("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}", instance${randomId})', 1500);-->
-            FillDropDowns("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}", instance${randomId});
+            setTimeout('FillDropDowns("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}", instance${randomId})', 1500);
+            <!--FillDropDowns("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}", instance${randomId});-->
             
         };
         
