@@ -1,28 +1,7 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-    <j:set var="randomId" value="${descriptor.getRandomIdentifier()}"></j:set>
-    <script src="${rootURL}/plugin/Vstart-Plugin/project.js" />
-    <script>
-        var desc = <st:bind value="${descriptor}" />;
-<!--        var instance = <st:bind value="${instance}" />;-->
-        
-        function run${randomId}(){
-            instance${randomId} = <st:bind value="${instance}" />;
-            <!--setTimeout('FillDropDowns("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}", instance${randomId})', 1500);-->
-            <!--FillDropDowns("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}", instance${randomId});-->
-            
-        };
-        
-       run${randomId}();
-            
-<!--        var event = new Event("projectsFill");
-        document.addEventListener("projectsFill", function(e) {
-            getProjectId("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}", instance${randomId})
-                }, false);-->
-    </script>
-     <!--Get random value-->
     
     <f:entry  title="Choose VSTART project" field="vstProjectId" >
-        <f:select id="projectsSelect${randomId}" field="vstProjectId" onchange='updateListBox(testCase${randomId}, "testCase?vstProjectId"+encode(this.field))'>
+        <f:select id="projectsSelect" field="vstProjectId" onchange='updateListBox(testCase${randomId}, "testCase?vstProjectId"+encode(this.field))'>
         
         </f:select>    
     </f:entry>
@@ -30,21 +9,16 @@
     <f:entry title="Status">
         <j:if test="${descriptor.getStat()}" >
             <!--We found ${descriptor.getStat()}-->
-            <img id="imgStat${randomId}" src="${rootURL}/plugin/Vstart-Plugin/images/green-icon.png" width="30" height="30" />
+            <img id="imgStat" src="${rootURL}/plugin/Vstart-Plugin/images/green-icon.png" width="30" height="30" />
         </j:if>
             
         <j:if test="${!descriptor.getStat()}">
             <!--We found ${!descriptor.getStat()}-->
-            <img id="imgStat${randomId}" src="${rootURL}/plugin/Vstart-Plugin/images/red-icon.png" width="50" height="50" />
+            <img id="imgStat" src="${rootURL}/plugin/Vstart-Plugin/images/red-icon.png" width="50" height="50" />
         </j:if>
     </f:entry>
         
     <f:entry title="Choose test case" field="testCase" >
-        <f:select id="testCase${randomId}" field="testCase" />
+        <f:select id="testCase" field="testCase" />
     </f:entry>
-    
-    <script>
-<!--        getProjectId("projectsSelect${randomId}", "testCase${randomId}", "imgStat${randomId}");-->
-        //document.getElementById("projectsSelect${randomId}").addEventListener("onchange", getProjectId("projectsSelect${randomId}", 'testCase${randomId}', 'imgStat${randomId}'));        
-    </script>
 </j:jelly>
