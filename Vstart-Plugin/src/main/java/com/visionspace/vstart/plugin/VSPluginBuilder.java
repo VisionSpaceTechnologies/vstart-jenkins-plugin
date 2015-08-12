@@ -95,11 +95,23 @@ public class VSPluginBuilder extends Builder {
         org.json.JSONObject logger = null;
         Object obj = new Object();
         long timeInterval = 2000;
+
+        //       VST Report!!
+        String root = build.getWorkspace().toString();
+        FilePath ws = new FilePath(build.getWorkspace(), root + "/VSTART/");
+
+        if (!ws.exists()) {
+            ws.mkdirs();
+        }
+        String path = ws.toString();
+        String jobName = path + "/VSTREPORT_" + build.getId();
+        PrintWriter wp = new PrintWriter(jobName + ".html", "UTF-8");
+        wp.println("Info JOB " + build.getBuiltOnStr() + " on build "+ build.getId() + "\n");
         
         try {
             Vstart vst = getDescriptor().getVst();
-            listener.getLogger().println(" Does this run? Answer: " + vst.canRun(testCase));
-            listener.getLogger().println("This is my Project ID: " + vstProjectId + "\n And this is my TestCase ID: " + testCase);
+//            listener.getLogger().println(" Does this run? Answer: " + vst.canRun(testCase));
+//            listener.getLogger().println("This is my Project ID: " + vstProjectId + "\n And this is my TestCase ID: " + testCase);
             
             runObject = vst.run(testCase);
             logger = vst.getLog(runObject.getLong("reportId"), 0l);
@@ -110,6 +122,7 @@ public class VSPluginBuilder extends Builder {
                     JSONArray jArray = logger.getJSONArray("log");
                     for(int i = 0; i < jArray.length(); i++){
                         org.json.JSONObject json = jArray.getJSONObject(i);
+                        wp.println("\n" + json);
                         listener.getLogger().println(json.getString("level") +
                                 " " + json.getLong("timestamp") + " [" + 
                                 json.getString("resource") + "]" + " - " +
@@ -135,17 +148,6 @@ public class VSPluginBuilder extends Builder {
             Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-//       VST Report!!
-        String root = build.getWorkspace().toString();
-        FilePath ws = new FilePath(build.getWorkspace(), root + "/VSTART/");
-
-        if (!ws.exists()) {
-            ws.mkdirs();
-        }
-        String path = ws.toString();
-        String jobName = path + "/VSTREPORT_" + build.getId();
-        PrintWriter wp = new PrintWriter(jobName + ".html", "UTF-8");
-        wp.print("Info on JOB#" + build.getId());
         wp.close();
         return true;
     }
