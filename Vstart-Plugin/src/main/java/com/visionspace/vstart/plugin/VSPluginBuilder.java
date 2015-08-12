@@ -21,7 +21,10 @@ import com.visionspace.vstart.api.Vstart;
 import hudson.FilePath;
 import hudson.model.FreeStyleProject;
 import hudson.model.Job;
+import hudson.remoting.VirtualChannel;
 import hudson.util.ListBoxModel;
+import java.io.BufferedReader;
+import java.io.File;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
@@ -29,6 +32,7 @@ import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -107,6 +111,15 @@ public class VSPluginBuilder extends Builder {
         String jobName = path + "/VSTREPORT_" + build.getId();
         PrintWriter wp = new PrintWriter(jobName + ".html", "UTF-8");
         wp.println("Info JOB " + build.getBuiltOnStr() + " on build "+ build.getId() + "\n");
+ 
+        wp.close();
+        
+        FilePath jPath = new FilePath(build.getWorkspace(), root + "/VSTART_JSON");
+        
+        PrintWriter wj = new PrintWriter(jPath + "/VSTART_JSON_" + 
+                                                build.getId() + ".json");
+        
+        //gets dummy file
         
         try {
             Vstart vst = getDescriptor().getVst();
@@ -122,7 +135,7 @@ public class VSPluginBuilder extends Builder {
                     JSONArray jArray = logger.getJSONArray("log");
                     for(int i = 0; i < jArray.length(); i++){
                         org.json.JSONObject json = jArray.getJSONObject(i);
-                        wp.println("\n" + json);
+                        wj.println("\n" + json);
                         listener.getLogger().println(json.getString("level") +
                                 " " + json.getLong("timestamp") + " [" + 
                                 json.getString("resource") + "]" + " - " +
@@ -148,7 +161,7 @@ public class VSPluginBuilder extends Builder {
             Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        wp.close();
+        wj.close();
         return true;
     }
 
