@@ -10,6 +10,7 @@ import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
+import hudson.model.Action;
 import hudson.model.BuildListener;
 import hudson.model.FreeStyleProject;
 import hudson.model.Result;
@@ -18,6 +19,9 @@ import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.kohsuke.stapler.DataBoundConstructor;
@@ -39,6 +43,11 @@ public class VSPluginRecorder extends Recorder {
     }
     
     @Override
+    public Action getProjectAction(AbstractProject<?, ?> project){
+        return new VSPluginProjectAction(project);
+    }
+    
+    @Override
      public boolean perform(AbstractBuild build, Launcher launcher, final BuildListener listener){
          
         FilePath ws = build.getWorkspace();
@@ -56,24 +65,15 @@ public class VSPluginRecorder extends Recorder {
             return true;
         }
         
-        String spacename = "/VSTART/";
-        FilePath vs = new FilePath(ws, spacename);
-        
+        String spacename = "/VSTART_JSON/";
+        FilePath jPath = new FilePath(ws, spacename);
+        //gets dummy file
+        Path file = FileSystems.getDefault().getPath(jPath.getRemote());
+        byte[] fileArray;
         try {
-            if(!vs.exists()){
-                vs.mkdirs();
-            }
+            fileArray = Files.readAllBytes(file);
+            
         } catch (IOException ex) {
-            Logger.getLogger(VSPluginRecorder.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(VSPluginRecorder.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        
-        try {
-            spacename = build.getEnvironment(listener).expand("VSTART");
-        } catch (IOException ex) {
-            Logger.getLogger(VSPluginRecorder.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (InterruptedException ex) {
             Logger.getLogger(VSPluginRecorder.class.getName()).log(Level.SEVERE, null, ex);
         }
         
