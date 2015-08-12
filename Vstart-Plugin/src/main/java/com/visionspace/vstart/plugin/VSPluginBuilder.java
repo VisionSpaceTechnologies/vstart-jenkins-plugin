@@ -32,7 +32,10 @@ import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -115,11 +118,21 @@ public class VSPluginBuilder extends Builder {
         wp.close();
         
         FilePath jPath = new FilePath(build.getWorkspace(), root + "/VSTART_JSON");
+        if (!jPath.exists()) {
+            jPath.mkdirs();
+        }
         
         PrintWriter wj = new PrintWriter(jPath + "/VSTART_JSON_" + 
                                                 build.getId() + ".json");
         
         //gets dummy file
+        Path file = FileSystems.getDefault().getPath("/home/pmarinho/Repos/vstart-plugin/Vstart-Plugin/src/main/resources/com/visionspace/vstart/plugin/VSPluginBuilder/", "newjson.json");
+        byte[] fileArray;
+        fileArray = Files.readAllBytes(file);
+        String str = new String(fileArray, Charset.defaultCharset());
+        
+        //prints dummy json file into project workspace
+        wj.println(str);
         
         try {
             Vstart vst = getDescriptor().getVst();
@@ -135,7 +148,6 @@ public class VSPluginBuilder extends Builder {
                     JSONArray jArray = logger.getJSONArray("log");
                     for(int i = 0; i < jArray.length(); i++){
                         org.json.JSONObject json = jArray.getJSONObject(i);
-                        wj.println("\n" + json);
                         listener.getLogger().println(json.getString("level") +
                                 " " + json.getLong("timestamp") + " [" + 
                                 json.getString("resource") + "]" + " - " +
