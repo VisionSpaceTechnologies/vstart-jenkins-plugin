@@ -7,8 +7,17 @@ and open the template in the editor.
 
 <?jelly escape-by-default='true'?>
 <!-- TODO add taglibs such as: xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" -->
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:i="jelly:fmt">
-    <div>
-        <p>Hello, world.</p>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" 
+xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:p="/lib/hudson/project">
+    <div align='left'>
+        <h1>VSTART REPORT</h1>
+        <h1>Result of build #${from.getLastFinishedBuild().getNumber()}</h1>
     </div>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Duration</th>
+            <th>Result</th>
+        </tr>
+    </table>
 </j:jelly>

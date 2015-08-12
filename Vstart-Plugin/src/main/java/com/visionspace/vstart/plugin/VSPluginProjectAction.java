@@ -16,23 +16,27 @@ public class VSPluginProjectAction implements Action {
 
     private final AbstractProject project;
     
-    public VSPluginProjectAction(final AbstractProject project){
+    public VSPluginProjectAction(AbstractProject project){
         this.project = project;
     }
     
     @Override
     public String getIconFileName() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return "credentials.png";
     }
 
     @Override
     public String getDisplayName() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        return "VSTART report";
     }
 
     @Override
     public String getUrlName() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+    
+    public AbstractProject getProject(){
+        return this.project;
     }
     
 }
