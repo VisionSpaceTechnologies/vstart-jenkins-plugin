@@ -19,5 +19,10 @@ xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:p="/lib/hu
             <th>Duration</th>
             <th>Result</th>
         </tr>
+        <tr>
+            <td>${from.getJArray().getString("scriptName")}</td>
+            <td>${from.getJArray().getLong("endTime") - from.getJArray().getLong("startTime")}</td>
+            <td>${from.getJArray().getString("status")}</td>
+        </tr>
     </table>
 </j:jelly>
