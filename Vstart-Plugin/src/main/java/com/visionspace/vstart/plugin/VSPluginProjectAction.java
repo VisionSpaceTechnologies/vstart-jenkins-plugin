@@ -7,17 +7,18 @@ package com.visionspace.vstart.plugin;
 
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
+import hudson.model.Action;
 import hudson.tasks.test.AbstractTestResultAction;
 
 /**
  *
  * @author pedro.marinho
  */
-public class VSPluginProjectAction extends AbstractTestResultAction<VSPluginProjectAction> {
+public class VSPluginProjectAction extends AbstractTestResultAction<VSPluginProjectAction> implements Action {
 
-    private final AbstractProject<?, ?> project;
+    private final AbstractProject project;
 
-    public VSPluginProjectAction(AbstractProject<?, ?> project) {
+    public VSPluginProjectAction(AbstractProject project) {
         this.project = project;
     }
 
