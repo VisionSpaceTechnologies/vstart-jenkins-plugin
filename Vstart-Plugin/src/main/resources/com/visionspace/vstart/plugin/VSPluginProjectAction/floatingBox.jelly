@@ -7,7 +7,7 @@ and open the template in the editor.
 
 <?jelly escape-by-default='true'?>
 <!-- TODO add taglibs such as:  xmlns:t="/lib/hudson" xmlns:f="/lib/form" -->
-<j:jelly xmlns:j="jelly:core" xmlns:l="/lib/layout" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:i="jelly:fmt">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:p="/lib/hudson/project">
     <div>
         <p>
             Test.
