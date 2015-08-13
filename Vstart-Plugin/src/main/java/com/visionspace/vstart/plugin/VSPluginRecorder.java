@@ -65,10 +65,16 @@ public class VSPluginRecorder extends Recorder {
             return true;
         }
         
-        String spacename = "/VSTART_JSON/";
+        String spacename = "VSTART_JSON/";
         FilePath jPath = new FilePath(ws, spacename);
         //gets dummy file
-        Path file = FileSystems.getDefault().getPath(jPath.getRemote());
+        Path file = FileSystems.getDefault().getPath(jPath.getRemote(), "VSTART_JSON_" + build.getNumber()+".json");
+        
+        if( jPath == null){
+            listener.getLogger().println("Workspace is unreachable.");
+            return false;
+        }
+        
         byte[] fileArray;
         try {
             fileArray = Files.readAllBytes(file);

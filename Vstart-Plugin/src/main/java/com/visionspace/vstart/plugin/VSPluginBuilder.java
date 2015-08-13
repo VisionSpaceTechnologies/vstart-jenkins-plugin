@@ -102,6 +102,13 @@ public class VSPluginBuilder extends Builder {
         org.json.JSONObject logger = null;
         Object obj = new Object();
         long timeInterval = 2000;
+        
+        //add action
+        VSPluginBuildAction buildAction = build.getAction(VSPluginBuildAction.class);
+        if(buildAction == null){
+            buildAction = new VSPluginBuildAction(build);
+            build.addAction(buildAction);
+        }
 
         //       VST Report!!
         String root = build.getWorkspace().toString();
