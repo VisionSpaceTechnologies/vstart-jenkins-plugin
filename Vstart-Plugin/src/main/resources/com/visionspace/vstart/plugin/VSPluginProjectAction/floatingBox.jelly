@@ -10,7 +10,7 @@ and open the template in the editor.
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:p="/lib/hudson/project">
     <div>
         <p>
-            Test.
+            
         </p>
     </div>
 </j:jelly>

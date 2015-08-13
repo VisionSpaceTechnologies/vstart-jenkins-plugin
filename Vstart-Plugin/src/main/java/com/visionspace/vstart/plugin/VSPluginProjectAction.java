@@ -7,18 +7,18 @@ package com.visionspace.vstart.plugin;
 
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
-import hudson.model.Action;
-import hudson.tasks.test.AbstractTestResultAction;
+import hudson.tasks.test.TestResultProjectAction;
 
 /**
  *
  * @author pedro.marinho
  */
-public class VSPluginProjectAction extends AbstractTestResultAction<VSPluginProjectAction> implements Action {
+public class VSPluginProjectAction extends TestResultProjectAction {
 
     private final AbstractProject project;
 
-    public VSPluginProjectAction(AbstractProject project) {
+    public VSPluginProjectAction(AbstractProject<?, ?> project){
+        super(project);
         this.project = project;
     }
 
@@ -42,7 +42,7 @@ public class VSPluginProjectAction extends AbstractTestResultAction<VSPluginProj
     }
 
     public AbstractBuild getLastFinishedBuild() {
-        AbstractBuild lastBuild = project.getLastBuild();
+        AbstractBuild lastBuild = this.project.getLastBuild();
 
         while (lastBuild != null && lastBuild.isBuilding()) {
             lastBuild = lastBuild.getPreviousBuild();
@@ -50,20 +50,4 @@ public class VSPluginProjectAction extends AbstractTestResultAction<VSPluginProj
 
         return lastBuild;
     }
-
-    @Override
-    public int getFailCount() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public int getTotalCount() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public Object getResult() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-   
 }

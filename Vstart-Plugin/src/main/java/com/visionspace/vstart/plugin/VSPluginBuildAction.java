@@ -8,6 +8,7 @@ package com.visionspace.vstart.plugin;
 import hudson.FilePath;
 import hudson.model.AbstractBuild;
 import hudson.model.Action;
+import hudson.tasks.test.AbstractTestResultAction;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
@@ -22,7 +23,7 @@ import org.kohsuke.stapler.StaplerProxy;
  *
  * @author pedro.marinho
  */
-public class VSPluginBuildAction implements Action, StaplerProxy {
+public class VSPluginBuildAction extends AbstractTestResultAction {
 
     private final AbstractBuild build;
     
@@ -33,7 +34,7 @@ public class VSPluginBuildAction implements Action, StaplerProxy {
     
     @Override
     public String getIconFileName() {
-        return "graphic.gif";
+        return "graph.gif";
     }
 
     @Override
@@ -67,7 +68,23 @@ public class VSPluginBuildAction implements Action, StaplerProxy {
     }
 
     @Override
-    public Object getTarget() {
-        return this.build;
+    public int getFailCount() {
+        JSONObject json = getJSON();
+        //This is going to have to be a loop through a JSONArray
+        
+        if(json.getString("status").equals("FAILED")){
+            return 1;
+        }
+        return 0;
+    }
+
+    @Override
+    public int getTotalCount() {
+        return 1;
+    }
+
+    @Override
+    public Object getResult() {
+        return this;
     }
 }

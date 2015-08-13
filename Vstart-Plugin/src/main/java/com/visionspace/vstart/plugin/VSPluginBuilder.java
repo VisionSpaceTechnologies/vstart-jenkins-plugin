@@ -19,9 +19,11 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.QueryParameter;
 import com.visionspace.vstart.api.Vstart;
 import hudson.FilePath;
+import hudson.model.Action;
 import hudson.model.FreeStyleProject;
 import hudson.model.Job;
 import hudson.remoting.VirtualChannel;
+import hudson.tasks.BuildStep;
 import hudson.util.ListBoxModel;
 import java.io.BufferedReader;
 import java.io.File;
@@ -36,6 +38,7 @@ import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -51,7 +54,7 @@ import org.kohsuke.stapler.bind.JavaScriptMethod;
  *
  * @author pedro.marinho
  */
-public class VSPluginBuilder extends Builder {
+public class VSPluginBuilder extends Builder implements BuildStep {
 
     private final String vstAddress;
     private final String credentialsId;
@@ -191,7 +194,7 @@ public class VSPluginBuilder extends Builder {
     public Descriptor getDescriptor() {
         return (Descriptor) super.getDescriptor();
     }
-
+    
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
     public static class Descriptor extends BuildStepDescriptor<Builder> {
 
