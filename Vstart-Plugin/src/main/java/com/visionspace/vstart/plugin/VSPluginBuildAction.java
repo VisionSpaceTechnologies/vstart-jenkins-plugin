@@ -13,9 +13,12 @@ import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  *
@@ -89,4 +92,14 @@ public class VSPluginBuildAction extends AbstractTestResultAction {
         return getBuild().getResult();
     }
     
+    public ArrayList<JSONObject> getReportList(){
+        JSONArray json = getJSON();
+        ArrayList<JSONObject> reportList = new ArrayList<JSONObject>();
+        
+        for(int i = 0; i < json.length(); i++){
+            reportList.add(json.getJSONObject(i));
+        }
+        
+        return reportList;
+    }
 }

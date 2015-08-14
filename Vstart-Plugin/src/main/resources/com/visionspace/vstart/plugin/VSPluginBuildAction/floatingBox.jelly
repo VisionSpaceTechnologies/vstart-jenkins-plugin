@@ -19,11 +19,13 @@ and open the template in the editor.
                 <th>Duration</th>
                 <th>Result</th>
             </tr>
-            <tr>
-                    <td>${from.getJSON().getJSONObject(0).getString("scriptName")}</td>
-                    <td>${from.getJSON().getJSONObject(0).getLong("endTime") - from.getJSON().getJSONObject(0).getLong("startTime")}</td>
-                    <td>${from.getJSON().getJSONObject(0).getString("status")}</td>
-            </tr>
+            <j:forEach var="report" items="${from.getReportList()}">
+                <tr>
+                        <td>${report.getString("scriptName")}</td>
+                        <td>${report.getLong("endTime") - report.getLong("startTime")}</td>
+                        <td>${report.getString("status")}</td>
+                </tr>
+            </j:forEach>
         </table>
     </div>
 </j:jelly>
