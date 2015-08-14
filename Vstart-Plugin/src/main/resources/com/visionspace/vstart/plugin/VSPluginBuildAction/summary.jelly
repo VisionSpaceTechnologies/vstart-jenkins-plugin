@@ -9,6 +9,7 @@ and open the template in the editor.
 <!-- TODO add taglibs such as: xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" -->
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:i="jelly:fmt">
     <div>
+        
         <st:include page="floatingBox.jelly"/>
     </div>
 </j:jelly>
