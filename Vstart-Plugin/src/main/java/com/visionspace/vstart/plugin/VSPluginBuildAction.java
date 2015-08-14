@@ -7,7 +7,6 @@ package com.visionspace.vstart.plugin;
 
 import hudson.FilePath;
 import hudson.model.AbstractBuild;
-import hudson.model.Action;
 import hudson.tasks.test.AbstractTestResultAction;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -16,8 +15,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import org.json.JSONObject;
-import org.kohsuke.stapler.StaplerProxy;
+import org.json.JSONArray;
 
 /**
  *
@@ -51,7 +49,7 @@ public class VSPluginBuildAction extends AbstractTestResultAction {
         return this.build;
     }
     
-    public JSONObject getJSON(){
+    public JSONArray getJSON(){
         String rel = "VSTART_JSON/";
         FilePath rp = new FilePath(build.getWorkspace(), rel);
         Path file = FileSystems.getDefault().getPath(rp.getRemote(), "/VSTART_JSON_" + build.getNumber() + ".json");
@@ -59,7 +57,7 @@ public class VSPluginBuildAction extends AbstractTestResultAction {
         try {
             fileArray = Files.readAllBytes(file);
             String str = new String(fileArray, Charset.defaultCharset());
-            JSONObject json = new JSONObject(str);
+            JSONArray json = new JSONArray(str);
             return json;
         } catch (IOException ex) {
             Logger.getLogger(VSPluginRecorder.class.getName()).log(Level.SEVERE, null, ex);
@@ -69,22 +67,26 @@ public class VSPluginBuildAction extends AbstractTestResultAction {
 
     @Override
     public int getFailCount() {
-        JSONObject json = getJSON();
-        //This is going to have to be a loop through a JSONArray
-        
-        if(json.getString("status").equals("FAILED")){
-            return 1;
+        JSONArray json = getJSON();
+        int fails = 0;
+        for(int i = 0; i < json.length(); i++){
+            if(json.getJSONObject(i).getString("status").equals("FAILED")){
+                fails++;
+            }
         }
-        return 0;
+        
+        return fails;
     }
 
     @Override
     public int getTotalCount() {
-        return 1;
+        JSONArray json = getJSON();
+        return json.length();
     }
 
     @Override
     public Object getResult() {
-        return this;
+        return getBuild().getResult();
     }
+    
 }

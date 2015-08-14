@@ -8,9 +8,10 @@ and open the template in the editor.
 <?jelly escape-by-default='true'?>
 <!-- TODO add taglibs such as:  xmlns:t="/lib/hudson" xmlns:f="/lib/form" -->
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:p="/lib/hudson/project">
+    <j:set var="trendQueryString1" value="?failureOnly=false" />
     <div>
-        <p>
-            
-        </p>
+        <h1 align="center ">VSTART Test Step Trend</h1>
+        <!--<img src="vstart/trend${trendQueryString1}" lazymap="vstart/trendMap${trendQueryString1}" alt="[Test result trend chart]"/>-->
+        <img src="vstart/trend" lazymap="vstart/trendMap${trendQueryString1}" alt="[Test result trend chart]"/>
     </div>
 </j:jelly>

@@ -20,9 +20,9 @@ and open the template in the editor.
                 <th>Result</th>
             </tr>
             <tr>
-                <td>${from.getJSON().getString("scriptName")}</td>
-                <td>${from.getJSON().getLong("endTime") - from.getJArray().getLong("startTime")}</td>
-                <td>${from.getJSON().getString("status")}</td>
+                    <td>${from.getJSON().getJSONObject(0).getString("scriptName")}</td>
+                    <td>${from.getJSON().getJSONObject(0).getLong("endTime") - from.getJSON().getJSONObject(0).getLong("startTime")}</td>
+                    <td>${from.getJSON().getJSONObject(0).getString("status")}</td>
             </tr>
         </table>
     </div>

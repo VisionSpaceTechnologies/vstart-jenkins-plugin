@@ -34,7 +34,7 @@ public class VSPluginProjectAction extends TestResultProjectAction {
 
     @Override
     public String getUrlName() {
-        return null;
+        return "vstart";
     }
 
     public AbstractProject getProject() {
@@ -50,4 +50,6 @@ public class VSPluginProjectAction extends TestResultProjectAction {
 
         return lastBuild;
     }
+    
+    
 }

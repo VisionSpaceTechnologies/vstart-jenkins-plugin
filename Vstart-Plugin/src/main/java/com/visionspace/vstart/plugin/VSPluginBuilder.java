@@ -54,7 +54,7 @@ import org.kohsuke.stapler.bind.JavaScriptMethod;
  *
  * @author pedro.marinho
  */
-public class VSPluginBuilder extends Builder implements BuildStep {
+public class VSPluginBuilder extends Builder {
 
     private final String vstAddress;
     private final String credentialsId;
