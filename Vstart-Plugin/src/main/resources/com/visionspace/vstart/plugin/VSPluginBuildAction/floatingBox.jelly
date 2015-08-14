@@ -8,24 +8,26 @@ and open the template in the editor.
 <?jelly escape-by-default='true'?>
 <!-- TODO add taglibs such as: xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" -->
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" xmlns:p="/lib/hudson/project">
-    <div style="float:right" >
-        
-        <h1>VSTART REPORT</h1>
-        <h1>Result of build #${from.getBuild().getNumber()}</h1>
-    
-        <table style="float:right" border="1">
-            <tr>
-                <th>Name</th>
-                <th>Duration</th>
-                <th>Result</th>
-            </tr>
-            <j:forEach var="report" items="${from.getReportList()}">
+    <st:include page="tableCSS.jelly"/>
+        <div style="float:right" >
+
+            <h1>VSTART REPORT</h1>
+            <h1>Result of build #${from.getBuild().getNumber()}</h1>
+
+            <table style="float:right" border="1">
                 <tr>
-                        <td>${report.getString("scriptName")}</td>
-                        <td>${report.getLong("endTime") - report.getLong("startTime")}</td>
-                        <td>${report.getString("status")}</td>
+                    <th>Name</th>
+                    <th>Duration</th>
+                    <th>Result</th>
                 </tr>
-            </j:forEach>
-        </table>
-    </div>
+                <j:forEach var="report" items="${from.getReportList()}">
+                    <tr>
+                            <td>${report.getString("scriptName")}</td>
+                            <td>${report.getLong("endTime") - report.getLong("startTime")}</td>
+                            <td>${report.getString("status")}</td>
+                    </tr>
+                </j:forEach>
+            </table>
+        </div>
+    
 </j:jelly>
