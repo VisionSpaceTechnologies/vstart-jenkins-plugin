@@ -48,5 +48,11 @@
       <artifactId>credentials</artifactId>
       <version>1.22</version>
     </dependency>
-   </dependencies>
+    <dependency>
+      <groupId>org.jenkins-ci.main</groupId>
+      <artifactId>jenkins-core</artifactId>
+      <version>1.576</version>
+      <type>jar</type>
+    </dependency>
+  </dependencies>
 </project>

@@ -19,9 +19,14 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.QueryParameter;
 import com.visionspace.vstart.api.Vstart;
 import hudson.FilePath;
+import hudson.model.Action;
 import hudson.model.FreeStyleProject;
 import hudson.model.Job;
+import hudson.remoting.VirtualChannel;
+import hudson.tasks.BuildStep;
 import hudson.util.ListBoxModel;
+import java.io.BufferedReader;
+import java.io.File;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
@@ -29,6 +34,11 @@ import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -95,6 +105,13 @@ public class VSPluginBuilder extends Builder {
         org.json.JSONObject logger = null;
         Object obj = new Object();
         long timeInterval = 2000;
+        
+        //add action
+        VSPluginBuildAction buildAction = build.getAction(VSPluginBuildAction.class);
+        if(buildAction == null){
+            buildAction = new VSPluginBuildAction(build);
+            build.addAction(buildAction);
+        }
 
         //       VST Report!!
         String root = build.getWorkspace().toString();
@@ -107,6 +124,25 @@ public class VSPluginBuilder extends Builder {
         String jobName = path + "/VSTREPORT_" + build.getId();
         PrintWriter wp = new PrintWriter(jobName + ".html", "UTF-8");
         wp.println("Info JOB " + build.getBuiltOnStr() + " on build "+ build.getId() + "\n");
+ 
+        wp.close();
+        
+        FilePath jPath = new FilePath(build.getWorkspace(), root + "/VSTART_JSON");
+        if (!jPath.exists()) {
+            jPath.mkdirs();
+        }
+        
+        PrintWriter wj = new PrintWriter(jPath + "/VSTART_JSON_" + 
+                                                build.getId() + ".json");
+        
+        //gets dummy file
+        Path file = FileSystems.getDefault().getPath("/home/pmarinho/Repos/vstart-plugin/Vstart-Plugin/src/main/resources/com/visionspace/vstart/plugin/VSPluginBuilder/", "newjson.json");
+        byte[] fileArray;
+        fileArray = Files.readAllBytes(file);
+        String str = new String(fileArray, Charset.defaultCharset());
+        
+        //prints dummy json file into project workspace
+        wj.println(str);
         
         try {
             Vstart vst = getDescriptor().getVst();
@@ -122,7 +158,6 @@ public class VSPluginBuilder extends Builder {
                     JSONArray jArray = logger.getJSONArray("log");
                     for(int i = 0; i < jArray.length(); i++){
                         org.json.JSONObject json = jArray.getJSONObject(i);
-                        wp.println("\n" + json);
                         listener.getLogger().println(json.getString("level") +
                                 " " + json.getLong("timestamp") + " [" + 
                                 json.getString("resource") + "]" + " - " +
@@ -148,7 +183,7 @@ public class VSPluginBuilder extends Builder {
             Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        wp.close();
+        wj.close();
         return true;
     }
 
@@ -159,7 +194,7 @@ public class VSPluginBuilder extends Builder {
     public Descriptor getDescriptor() {
         return (Descriptor) super.getDescriptor();
     }
-
+    
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
     public static class Descriptor extends BuildStepDescriptor<Builder> {
 
