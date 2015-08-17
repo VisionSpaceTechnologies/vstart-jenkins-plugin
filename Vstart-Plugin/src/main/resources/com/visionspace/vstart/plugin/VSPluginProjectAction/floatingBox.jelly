@@ -12,6 +12,6 @@ and open the template in the editor.
     <div>
         <h1 align="center ">VSTART Test Step Trend</h1>
         <!--<img src="vstart/trend${trendQueryString1}" lazymap="vstart/trendMap${trendQueryString1}" alt="[Test result trend chart]"/>-->
-        <img src="vstart/trend" lazymap="vstart/trendMap${trendQueryString1}" alt="[Test result trend chart]"/>
+        <img src="vstart/trend" lazymap="vstart/trendMap" alt="[Test result trend chart]"/>
     </div>
 </j:jelly>

@@ -19,14 +19,9 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.QueryParameter;
 import com.visionspace.vstart.api.Vstart;
 import hudson.FilePath;
-import hudson.model.Action;
 import hudson.model.FreeStyleProject;
 import hudson.model.Job;
-import hudson.remoting.VirtualChannel;
-import hudson.tasks.BuildStep;
 import hudson.util.ListBoxModel;
-import java.io.BufferedReader;
-import java.io.File;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
@@ -38,7 +33,6 @@ import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Collection;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -146,9 +140,16 @@ public class VSPluginBuilder extends Builder {
         
         try {
             Vstart vst = getDescriptor().getVst();
-//            listener.getLogger().println(" Does this run? Answer: " + vst.canRun(testCase));
+            listener.getLogger().println(" Does this run? Answer: " + vst.canRun(testCase));
 //            listener.getLogger().println("This is my Project ID: " + vstProjectId + "\n And this is my TestCase ID: " + testCase);
-            
+            if (!vst.canRun(testCase)) {
+                listener.getLogger().println("This job can't be run at the moment. [JOB]);");
+                wj.print("[{ }]");
+                wj.close();
+                vst.close();
+                return false;
+            }
+                
             runObject = vst.run(testCase);
             logger = vst.getLog(runObject.getLong("reportId"), 0l);
             
@@ -297,11 +298,7 @@ public class VSPluginBuilder extends Builder {
         public void setStat(boolean stat) {
             this.stat = stat;
         }
-         
-//        @JavaScriptMethod
-//        public void setVstProjectId(long vstProjectid) {
-//            this.vstProjectId = vstProjectid;
-//        }
+
         /**
          * Tests the validity of an URL
          *
@@ -333,6 +330,64 @@ public class VSPluginBuilder extends Builder {
                 return FormValidation.error("Please insert a valid URL!");
             }
 
+        }
+        
+        public boolean isValidProjectId(long id){
+            
+                try {
+                    if(vst == null){
+                        vst = new Vstart(vstAddress, vstUser, vstPass);
+                    }
+                    vst.login(vstUser, vstPass);
+                    JSONArray jArr = vst.listUserProjects();
+                    vst.close();
+                    
+                    for(int i = 0; i < jArr.length(); i++){
+                        long pId = jArr.getJSONObject(i).getLong("id");
+                        if(pId == id){
+                            return true;
+                        }
+                    }
+                    
+                    return false;
+                } catch (URISyntaxException ex) {
+                    Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger("Error in connection.");
+                    return false;
+                } catch (IOException ex) {
+                    Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
+                    Logger.getLogger("Error in connection.");
+                    return false;
+                }
+            }
+        
+        public FormValidation doCheckVstProjectId(@QueryParameter("vstProjectId") final long id){
+            if(isValidProjectId(id)){
+                return FormValidation.ok("Available project.");
+            } else {
+                return FormValidation.error("This project does not exist or it is not available at the current time.");
+            }
+        }
+        
+        public FormValidation doCheckTestCase(@QueryParameter("testCase") final long id){
+            try{
+                if(vst == null){
+                    vst = new Vstart(vstAddress, vstUser, vstPass);
+                }
+                vst.login(vstUser, vstPass);
+                boolean test = vst.canRun(id);
+                if(test){
+                    return FormValidation.ok();
+                } else {
+                    return FormValidation.error("This test case is not available at the time, please select another.");
+                }
+            } catch (IOException e ){
+                Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, e);
+                return FormValidation.error("Connection error! Test case unavailable!");
+            } catch (URISyntaxException ex) {
+                Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
+                return FormValidation.error("Connection error! Test case unavailable!");
+            }
         }
 
         @Override
@@ -370,6 +425,9 @@ public class VSPluginBuilder extends Builder {
         public ListBoxModel doFillVstProjectIdItems() throws IOException {
 
             try {
+                if(vst == null){
+                        vst = new Vstart(vstAddress, vstUser, vstPass);
+                }
                 vst.login(vstUser, vstPass);
                 ListBoxModel items = new ListBoxModel();
                 JSONArray array = vst.listUserProjects();
@@ -386,16 +444,12 @@ public class VSPluginBuilder extends Builder {
             } catch (URISyntaxException ex) {
 
                 ListBoxModel items = new ListBoxModel();
-                this.stat = false;
                 ex.printStackTrace();
-                
                 return items;
             } catch (HttpResponseException exc)   {
 
                 ListBoxModel items = new ListBoxModel();
-                this.stat = false;
                 exc.printStackTrace();
-                
                 return items;
             }    
         }
@@ -415,7 +469,9 @@ public class VSPluginBuilder extends Builder {
         public ListBoxModel doFillTestCaseItems(@QueryParameter("vstProjectId") final long vstProjectId) {
 
             try {
-                
+                if(vst == null){
+                        vst = new Vstart(vstAddress, vstUser, vstPass);
+                }
                 vst.login(vstUser, vstPass);
                 ListBoxModel items = new ListBoxModel();
                 JSONArray array = vst.listProjectTestCases(vstProjectId);
@@ -433,15 +489,10 @@ public class VSPluginBuilder extends Builder {
                 return items;
 
             } catch (IOException e) {
-
                 ListBoxModel items = new ListBoxModel();
-                FormValidation.error("Error retrieving testcases. Please try again.");
                 return items;
-
             } catch (URISyntaxException ex) {
-
                 ListBoxModel items = new ListBoxModel();
-                FormValidation.error("Error retrieving testcases. Please try again.");
                 return items;
             }
         }

@@ -72,6 +72,11 @@ public class VSPluginBuildAction extends AbstractTestResultAction {
     public int getFailCount() {
         JSONArray json = getJSON();
         int fails = 0;
+        
+        //validation
+        if(json == null){
+            return 1; // fail
+        }
         for(int i = 0; i < json.length(); i++){
             if(json.getJSONObject(i).getString("status").equals("FAILED")){
                 fails++;
