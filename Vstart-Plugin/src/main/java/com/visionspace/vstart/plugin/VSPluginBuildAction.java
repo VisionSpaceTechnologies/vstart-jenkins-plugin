@@ -59,19 +59,23 @@ public class VSPluginBuildAction extends AbstractTestResultAction {
         byte[] fileArray;
         try {
             fileArray = Files.readAllBytes(file);
+            if(fileArray.length == 0){
+                    return new JSONArray();
+            }
             String str = new String(fileArray, Charset.defaultCharset());
             JSONArray json = new JSONArray(str);
             return json;
         } catch (IOException ex) {
             Logger.getLogger(VSPluginRecorder.class.getName()).log(Level.SEVERE, null, ex);
         }
-        return null;
+        return new JSONArray();
     }
 
     @Override
     public int getFailCount() {
         JSONArray json = getJSON();
         int fails = 0;
+
         for(int i = 0; i < json.length(); i++){
             if(json.getJSONObject(i).getString("status").equals("FAILED")){
                 fails++;
