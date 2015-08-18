@@ -145,7 +145,6 @@ public class VSPluginBuilder extends Builder {
 //        }
 //
 //        wj.close();
-
         try {
 
             StandardUsernamePasswordCredentials cred = CredentialsProvider.findCredentialById(getDescriptor().getCredentialsId(), StandardUsernamePasswordCredentials.class, build);
@@ -207,7 +206,7 @@ public class VSPluginBuilder extends Builder {
                     + build.getId() + ".json");
             wj.println(report.toString());
             wj.close();
-            
+
             vst.close();
 
         } catch (URISyntaxException ex) {
@@ -292,37 +291,61 @@ public class VSPluginBuilder extends Builder {
             this.credentialsId = credentialsId;
         }
 
-        /**
-         * Tests the validity of an URL
-         *
-         * @param nUrl
-         * @return true if valid, false if not valid
-         */
-        public boolean isValidURL(String nUrl) {
-            URL u = null;
-
-            try {
-                u = new URL(nUrl);
-            } catch (MalformedURLException e) {
-                return false;
-            }
-            try {
-                u.toURI();
-            } catch (URISyntaxException z) {
-                return false;
-            }
-            return true;
-        }
-
-        public FormValidation doCheckAddress(@QueryParameter("vstAddress") final String address)
+//        /**
+//         * Tests the validity of an URL
+//         *
+//         * @param nUrl
+//         * @return true if valid, false if not valid
+//         */
+//        public boolean isValidURL(String nUrl) {
+//            URL u = null;
+//
+//            try {
+//                u = new URL(nUrl);
+//            } catch (MalformedURLException e) {
+//                return false;
+//            }
+//            try {
+//                u.toURI();
+//            } catch (URISyntaxException z) {
+//                return false;
+//            }
+//            return true;
+//        }
+        public FormValidation doCheckLogin(@QueryParameter("vstAddress") final String address, @QueryParameter("credentialsId") final String credentials)
                 throws IOException, ServletException {
 
-            if (this.isValidURL(address)) {
-                return FormValidation.ok("Success!");
-            } else {
-                return FormValidation.error("Please insert a valid URL!");
+//            if (this.isValidURL(address)) {
+//                return FormValidation.ok("Success!");
+//            } else {
+//                return FormValidation.error("Please insert a valid URL!");
+//            }
+            String user = new String();
+            String pass = new String();
+            List<DomainRequirement> domainRequirements = newArrayList();
+            List<StandardUsernamePasswordCredentials> c = CredentialsProvider.lookupCredentials(StandardUsernamePasswordCredentials.class, Jenkins.getInstance(), null, domainRequirements);
+
+            for (int i = 0; i < c.size(); i++) {
+                if (c.get(i).getId().equals(credentials)) {
+                    user = c.get(i).getUsername();
+                    pass = c.get(i).getPassword().getPlainText();
+                    break;
+                }
             }
 
+            Vstart vstObject;
+            try {
+                vstObject = new Vstart(address, user, pass);
+                vstObject.login(user, pass);
+                vstObject.close();
+                return FormValidation.ok("Login: OK!");
+            } catch (URISyntaxException ex) {
+                Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
+                return FormValidation.error("Login: error!");
+            } catch (IOException e) {
+                Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, e);
+                return FormValidation.error("Login: error!");
+            }
         }
 
         public synchronized JSONArray getProjects() {

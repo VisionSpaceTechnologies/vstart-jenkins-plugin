@@ -4,12 +4,11 @@
 	<f:entry title="Web Address" field="vstAddress">
             <f:textbox default="${descriptor.defaultVstAddress()}"/>
         </f:entry>
-        <f:validateButton
-            title="${%Test Connection}" progress="${%Testing...}"
-            method="checkAddress" with="vstAddress" />
-
         <f:entry title="Credentials" field="credentialsId">
             <c:select/>
-        </f:entry>    
+        </f:entry> 
+        <f:validateButton
+            title="${%Test Connection}" progress="${%Testing...}"
+            method="checkLogin" with="vstAddress,credentialsId"  />   
     </f:section>
 </j:jelly>
