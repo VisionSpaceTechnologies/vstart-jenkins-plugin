@@ -131,11 +131,13 @@ public class VSPluginBuilder extends Builder {
         String info = "Info JOB " + build.getBuiltOnStr() + " on build " + build.getId() + "\n";
         boolean testWriteHTML = writeHTML(path, info);
         
+        //HTML - test on write success
         if(!testWriteHTML)
         {
             listener.getLogger().println("Error on HTML report.");
         }
         
+        //JSON - VSTART REPORT
         FilePath jPath = new FilePath(build.getWorkspace(), root + "/VSTART_JSON");
         if (!jPath.exists()) {
             jPath.mkdirs();
@@ -144,41 +146,18 @@ public class VSPluginBuilder extends Builder {
         PrintWriter wj = new PrintWriter(jPath + "/VSTART_JSON_"
                 + build.getId() + ".json");
 
-        //gets dummy file
-        Path file = FileSystems.getDefault().getPath("/home/pmarinho/Repos/vstart-plugin/Vstart-Plugin/src/main/resources/com/visionspace/vstart/plugin/VSPluginBuilder/", "newjson.json");
-        byte[] fileArray;
-        fileArray = Files.readAllBytes(file);
-        String str = new String(fileArray, Charset.defaultCharset());
-
-        if (!str.isEmpty()) {
-            wj.println(str);
-        } else {
-            wj.println("[{ }]");
-        }
-        //prints dummy json file into project workspace            
-
         try {
-            //Vstart vst = getDescriptor().getVst();
-            //boolean test = false;
-            //if (vst == null) {
+
             StandardUsernamePasswordCredentials cred = CredentialsProvider.findCredentialById(getDescriptor().getCredentialsId(), StandardUsernamePasswordCredentials.class, build);
-            
             String user = cred.getUsername();
             String pass = cred.getPassword().getPlainText();
-            
-            //List<StandardUsernamePasswordCredentials> c = CredentialsProvider.lookupCredentials(StandardUsernamePasswordCredentials.class, Jenkins.getInstance(), null, domainRequirements);
-            //user = c.get(0).getUsername();
-            //pass = c.get(0).getPassword().getPlainText();
 
             Vstart vst = new Vstart(getDescriptor().getVstAddress(), user, pass);
             vst.login(user, pass);
             boolean test = vst.canRun(testCase);            
 
-//            }
-//            listener.getLogger().println(" Does this run? Answer: " + vst.canRun(testCase));
-//            listener.getLogger().println("This is my Project ID: " + vstProjectId + "\n And this is my TestCase ID: " + testCase);
             if (!test) {
-                listener.getLogger().println("This job can't be run at the moment. [JOB]);");
+                listener.getLogger().println("This job can't be run at the moment. [JOB: "+build.getProject().getName()+ " BUILD NO: " + build.getNumber()+"]);");
                 wj.print("[{ }]");
                 wj.close();
                 vst.close();
@@ -195,6 +174,7 @@ public class VSPluginBuilder extends Builder {
                     JSONArray jArray = logger.getJSONArray("log");
                     for (int i = 0; i < jArray.length(); i++) {                        
                         org.json.JSONObject json = jArray.getJSONObject(i);
+                        wj.println(json);
                         Long eventTimeStamp = json.getLong("timestamp");
                         listener.getLogger().println(json.getString("level")
                                 + " " + eventTimeStamp + " ["
@@ -216,6 +196,8 @@ public class VSPluginBuilder extends Builder {
 
         } catch (URISyntaxException ex) {
             Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
+            wj.close();
+            return false;
         }
 
         wj.close();
