@@ -22,10 +22,12 @@ import hudson.FilePath;
 import hudson.model.FreeStyleProject;
 import hudson.model.Job;
 import hudson.util.ListBoxModel;
+import java.io.FileNotFoundException;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -84,6 +86,24 @@ public class VSPluginBuilder extends Builder {
         return testCase;
     }
 
+    private boolean writeHTML(String path, String info)
+    {
+        PrintWriter wp = null;
+        try {
+            wp = new PrintWriter(path + ".html", "UTF-8");
+            wp.println(info);
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        } catch (UnsupportedEncodingException ex) {
+            Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        } finally {
+            wp.close();
+            return true;
+        }
+    }        
+    
     @Override
     public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
 
@@ -106,13 +126,16 @@ public class VSPluginBuilder extends Builder {
         if (!ws.exists()) {
             ws.mkdirs();
         }
-        String path = ws.toString();
-        String jobName = path + "/VSTREPORT_" + build.getId();
-        PrintWriter wp = new PrintWriter(jobName + ".html", "UTF-8");
-        wp.println("Info JOB " + build.getBuiltOnStr() + " on build " + build.getId() + "\n");
-
-        wp.close();
-
+        //  HTML - possible removal
+        String path = ws.toString() + "/VSTREPORT_" + build.getId();
+        String info = "Info JOB " + build.getBuiltOnStr() + " on build " + build.getId() + "\n";
+        boolean testWriteHTML = writeHTML(path, info);
+        
+        if(!testWriteHTML)
+        {
+            listener.getLogger().println("Error on HTML report.");
+        }
+        
         FilePath jPath = new FilePath(build.getWorkspace(), root + "/VSTART_JSON");
         if (!jPath.exists()) {
             jPath.mkdirs();
