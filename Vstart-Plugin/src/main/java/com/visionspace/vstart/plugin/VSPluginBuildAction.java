@@ -63,12 +63,14 @@ public class VSPluginBuildAction extends AbstractTestResultAction {
                     return new JSONArray();
             }
             String str = new String(fileArray, Charset.defaultCharset());
-            JSONArray json = new JSONArray(str);
+            JSONObject jObj = new JSONObject(str);
+            JSONArray json = jObj.getJSONArray("steps");
             return json;
         } catch (IOException ex) {
             Logger.getLogger(VSPluginRecorder.class.getName()).log(Level.SEVERE, null, ex);
+            return new JSONArray();
         }
-        return new JSONArray();
+        
     }
 
     @Override

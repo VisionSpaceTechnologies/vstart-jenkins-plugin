@@ -71,23 +71,20 @@ public class VSPluginBuilder extends Builder {
     }
 
     /*public String getVstAddress() {
-        return vstAddress;
-    }*/
-
+     return vstAddress;
+     }*/
     public long getVstProjectId() {
         return vstProjectId;
     }
 
     /*public String getCredentialsId() {
-        return credentialsId;
-    }*/
-
+     return credentialsId;
+     }*/
     public long getTestCase() {
         return testCase;
     }
 
-    private boolean writeHTML(String path, String info)
-    {
+    private boolean writeHTML(String path, String info) {
         PrintWriter wp = null;
         try {
             wp = new PrintWriter(path + ".html", "UTF-8");
@@ -102,13 +99,12 @@ public class VSPluginBuilder extends Builder {
             wp.close();
             return true;
         }
-    }        
-    
+    }
+
     @Override
     public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
 
         org.json.JSONObject runObject = null; //There are two types of JSONObject in conflict throughout the code
-        org.json.JSONObject logger = null;
         Object obj = new Object();
         long timeInterval = 2000;
 
@@ -128,26 +124,28 @@ public class VSPluginBuilder extends Builder {
         }
         //  HTML - possible removal
         String path = ws.toString() + "/VSTREPORT_" + build.getId();
-        String info = "Info JOB " + build.getBuiltOnStr() + " on build " + build.getId() + "\n";
+        String info = "Info JOB: " + build.getProject().getName() + " BUILD NO " + build.getNumber() + "\n";
         boolean testWriteHTML = writeHTML(path, info);
-        
+
         //HTML - test on write success
-        if(!testWriteHTML)
-        {
+        if (!testWriteHTML) {
             listener.getLogger().println("Error on HTML report.");
         }
-        
-        //JSON - VSTART REPORT
-        FilePath jPath = new FilePath(build.getWorkspace(), root + "/VSTART_JSON");
-        if (!jPath.exists()) {
-            jPath.mkdirs();
-        }
 
-        PrintWriter wj = new PrintWriter(jPath + "/VSTART_JSON_"
-                + build.getId() + ".json");
-        //JSONArray structure
-        wj.print("[");
-        
+//        //gets dummy file
+//        Path file = FileSystems.getDefault().getPath("/home/pmarinho/Repos/vstart-plugin/Vstart-Plugin/src/main/resources/com/visionspace/vstart/plugin/VSPluginBuilder/", "newjson.json");
+//        byte[] fileArray;
+//        fileArray = Files.readAllBytes(file);
+//        String str = new String(fileArray, Charset.defaultCharset());
+//
+//        if (!str.isEmpty()) {
+//            wj.println(str);
+//        } else {
+//            wj.println("[{ }]");
+//        }
+//
+//        wj.close();
+
         try {
 
             StandardUsernamePasswordCredentials cred = CredentialsProvider.findCredentialById(getDescriptor().getCredentialsId(), StandardUsernamePasswordCredentials.class, build);
@@ -156,28 +154,29 @@ public class VSPluginBuilder extends Builder {
 
             Vstart vst = new Vstart(getDescriptor().getVstAddress(), user, pass);
             vst.login(user, pass);
-            boolean test = vst.canRun(testCase);            
+            boolean test = vst.canRun(testCase);
 
             if (!test) {
-                listener.getLogger().println("This job can't be run at the moment. [JOB: "+build.getProject().getName()+ " BUILD NO: " + build.getNumber()+"]);");
-                wj.print("{ }]");
-                wj.close();
+                listener.getLogger().println("This job can't be run at the moment. [JOB: " + build.getProject().getName() + " BUILD NO " + build.getNumber() + "]);");
+//                wj.print("[{ }]");
+//                wj.close();
                 vst.close();
                 return false;
             }
 
             runObject = vst.run(testCase);
-            logger = vst.getLog(runObject.getLong("reportId"), 0l);
+            Long reportId = runObject.getLong("reportId");
 
             synchronized (obj) {
                 long timeStamp = 0;
+                org.json.JSONObject logger = null;
+
                 do {
-                    logger = vst.getLog(runObject.getLong("reportId"), timeStamp);
+                    logger = vst.getLog(reportId, timeStamp);
                     JSONArray jArray = logger.getJSONArray("log");
-                    for (int i = 0; i < jArray.length(); i++) {                        
+                    for (int i = 0; i < jArray.length(); i++) {
                         org.json.JSONObject json = jArray.getJSONObject(i);
-                        //print to workspace file
-                        wj.println(json + ", ");
+//                        org.json.JSONObject json = logger.getJSONObject("log");
                         Long eventTimeStamp = json.getLong("timestamp");
                         listener.getLogger().println(json.getString("level")
                                 + " " + eventTimeStamp + " ["
@@ -189,23 +188,35 @@ public class VSPluginBuilder extends Builder {
                             timeStamp = eventTimeStamp;
                         }
                     }
-                    if (!logger.getBoolean("finished")) { 
+                    if (!logger.getBoolean("finished")) {
                         obj.wait(timeInterval);
                     }
                 } while (!logger.getBoolean("finished"));
             }
+            //JSON Report - not implemented yet
+//            wj.print(vst.getReport(runObject.getLong("reportId")));
             //Closing
+            org.json.JSONObject report = vst.getReport(reportId);
+            //JSON - VSTART REPORT
+            FilePath jPath = new FilePath(build.getWorkspace(), root + "/VSTART_JSON");
+            if (!jPath.exists()) {
+                jPath.mkdirs();
+            }
+
+            PrintWriter wj = new PrintWriter(jPath + "/VSTART_JSON_"
+                    + build.getId() + ".json");
+            wj.println(report.toString());
+            wj.close();
+            
             vst.close();
 
         } catch (URISyntaxException ex) {
             Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
-            wj.print("]");
-            wj.close();
+            //wj.close();
             return false;
         }
-        //JSONArray structure
-        wj.print("]");
-        wj.close();
+
+        //wj.close();
         return true;
     }
 
