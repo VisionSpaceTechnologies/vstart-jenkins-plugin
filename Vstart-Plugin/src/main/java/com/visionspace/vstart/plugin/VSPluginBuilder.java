@@ -71,23 +71,20 @@ public class VSPluginBuilder extends Builder {
     }
 
     /*public String getVstAddress() {
-        return vstAddress;
-    }*/
-
+     return vstAddress;
+     }*/
     public long getVstProjectId() {
         return vstProjectId;
     }
 
     /*public String getCredentialsId() {
-        return credentialsId;
-    }*/
-
+     return credentialsId;
+     }*/
     public long getTestCase() {
         return testCase;
     }
 
-    private boolean writeHTML(String path, String info)
-    {
+    private boolean writeHTML(String path, String info) {
         PrintWriter wp = null;
         try {
             wp = new PrintWriter(path + ".html", "UTF-8");
@@ -102,13 +99,12 @@ public class VSPluginBuilder extends Builder {
             wp.close();
             return true;
         }
-    }        
-    
+    }
+
     @Override
     public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
 
         org.json.JSONObject runObject = null; //There are two types of JSONObject in conflict throughout the code
-        org.json.JSONObject logger = null;
         Object obj = new Object();
         long timeInterval = 2000;
 
@@ -128,73 +124,59 @@ public class VSPluginBuilder extends Builder {
         }
         //  HTML - possible removal
         String path = ws.toString() + "/VSTREPORT_" + build.getId();
-        String info = "Info JOB " + build.getBuiltOnStr() + " on build " + build.getId() + "\n";
+        String info = "Info JOB: " + build.getProject().getName() + " BUILD NO " + build.getNumber() + "\n";
         boolean testWriteHTML = writeHTML(path, info);
-        
-        if(!testWriteHTML)
-        {
+
+        //HTML - test on write success
+        if (!testWriteHTML) {
             listener.getLogger().println("Error on HTML report.");
         }
-        
-        FilePath jPath = new FilePath(build.getWorkspace(), root + "/VSTART_JSON");
-        if (!jPath.exists()) {
-            jPath.mkdirs();
-        }
 
-        PrintWriter wj = new PrintWriter(jPath + "/VSTART_JSON_"
-                + build.getId() + ".json");
-
-        //gets dummy file
-        Path file = FileSystems.getDefault().getPath("/home/pmarinho/Repos/vstart-plugin/Vstart-Plugin/src/main/resources/com/visionspace/vstart/plugin/VSPluginBuilder/", "newjson.json");
-        byte[] fileArray;
-        fileArray = Files.readAllBytes(file);
-        String str = new String(fileArray, Charset.defaultCharset());
-
-        if (!str.isEmpty()) {
-            wj.println(str);
-        } else {
-            wj.println("[{ }]");
-        }
-        //prints dummy json file into project workspace            
+//        //gets dummy file
+//        Path file = FileSystems.getDefault().getPath("/home/pmarinho/Repos/vstart-plugin/Vstart-Plugin/src/main/resources/com/visionspace/vstart/plugin/VSPluginBuilder/", "newjson.json");
+//        byte[] fileArray;
+//        fileArray = Files.readAllBytes(file);
+//        String str = new String(fileArray, Charset.defaultCharset());
+//
+//        if (!str.isEmpty()) {
+//            wj.println(str);
+//        } else {
+//            wj.println("[{ }]");
+//        }
+//
+//        wj.close();
 
         try {
-            //Vstart vst = getDescriptor().getVst();
-            //boolean test = false;
-            //if (vst == null) {
+
             StandardUsernamePasswordCredentials cred = CredentialsProvider.findCredentialById(getDescriptor().getCredentialsId(), StandardUsernamePasswordCredentials.class, build);
-            
             String user = cred.getUsername();
             String pass = cred.getPassword().getPlainText();
-            
-            //List<StandardUsernamePasswordCredentials> c = CredentialsProvider.lookupCredentials(StandardUsernamePasswordCredentials.class, Jenkins.getInstance(), null, domainRequirements);
-            //user = c.get(0).getUsername();
-            //pass = c.get(0).getPassword().getPlainText();
 
             Vstart vst = new Vstart(getDescriptor().getVstAddress(), user, pass);
             vst.login(user, pass);
-            boolean test = vst.canRun(testCase);            
+            boolean test = vst.canRun(testCase);
 
-//            }
-//            listener.getLogger().println(" Does this run? Answer: " + vst.canRun(testCase));
-//            listener.getLogger().println("This is my Project ID: " + vstProjectId + "\n And this is my TestCase ID: " + testCase);
             if (!test) {
-                listener.getLogger().println("This job can't be run at the moment. [JOB]);");
-                wj.print("[{ }]");
-                wj.close();
+                listener.getLogger().println("This job can't be run at the moment. [JOB: " + build.getProject().getName() + " BUILD NO " + build.getNumber() + "]);");
+//                wj.print("[{ }]");
+//                wj.close();
                 vst.close();
                 return false;
             }
 
             runObject = vst.run(testCase);
-            logger = vst.getLog(runObject.getLong("reportId"), 0l);
+            Long reportId = runObject.getLong("reportId");
 
             synchronized (obj) {
                 long timeStamp = 0;
+                org.json.JSONObject logger = null;
+
                 do {
-                    logger = vst.getLog(runObject.getLong("reportId"), timeStamp);
+                    logger = vst.getLog(reportId, timeStamp);
                     JSONArray jArray = logger.getJSONArray("log");
-                    for (int i = 0; i < jArray.length(); i++) {                        
+                    for (int i = 0; i < jArray.length(); i++) {
                         org.json.JSONObject json = jArray.getJSONObject(i);
+//                        org.json.JSONObject json = logger.getJSONObject("log");
                         Long eventTimeStamp = json.getLong("timestamp");
                         listener.getLogger().println(json.getString("level")
                                 + " " + eventTimeStamp + " ["
@@ -206,19 +188,35 @@ public class VSPluginBuilder extends Builder {
                             timeStamp = eventTimeStamp;
                         }
                     }
-                    if (!logger.getBoolean("finished")) { 
+                    if (!logger.getBoolean("finished")) {
                         obj.wait(timeInterval);
                     }
                 } while (!logger.getBoolean("finished"));
             }
+            //JSON Report - not implemented yet
+//            wj.print(vst.getReport(runObject.getLong("reportId")));
             //Closing
+            org.json.JSONObject report = vst.getReport(reportId);
+            //JSON - VSTART REPORT
+            FilePath jPath = new FilePath(build.getWorkspace(), root + "/VSTART_JSON");
+            if (!jPath.exists()) {
+                jPath.mkdirs();
+            }
+
+            PrintWriter wj = new PrintWriter(jPath + "/VSTART_JSON_"
+                    + build.getId() + ".json");
+            wj.println(report.toString());
+            wj.close();
+            
             vst.close();
 
         } catch (URISyntaxException ex) {
             Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
+            //wj.close();
+            return false;
         }
 
-        wj.close();
+        //wj.close();
         return true;
     }
 
