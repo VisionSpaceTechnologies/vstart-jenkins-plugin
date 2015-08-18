@@ -145,7 +145,9 @@ public class VSPluginBuilder extends Builder {
 
         PrintWriter wj = new PrintWriter(jPath + "/VSTART_JSON_"
                 + build.getId() + ".json");
-
+        //JSONArray structure
+        wj.print("[");
+        
         try {
 
             StandardUsernamePasswordCredentials cred = CredentialsProvider.findCredentialById(getDescriptor().getCredentialsId(), StandardUsernamePasswordCredentials.class, build);
@@ -158,7 +160,7 @@ public class VSPluginBuilder extends Builder {
 
             if (!test) {
                 listener.getLogger().println("This job can't be run at the moment. [JOB: "+build.getProject().getName()+ " BUILD NO: " + build.getNumber()+"]);");
-                wj.print("[{ }]");
+                wj.print("{ }]");
                 wj.close();
                 vst.close();
                 return false;
@@ -174,7 +176,8 @@ public class VSPluginBuilder extends Builder {
                     JSONArray jArray = logger.getJSONArray("log");
                     for (int i = 0; i < jArray.length(); i++) {                        
                         org.json.JSONObject json = jArray.getJSONObject(i);
-                        wj.println(json);
+                        //print to workspace file
+                        wj.println(json + ", ");
                         Long eventTimeStamp = json.getLong("timestamp");
                         listener.getLogger().println(json.getString("level")
                                 + " " + eventTimeStamp + " ["
@@ -196,10 +199,12 @@ public class VSPluginBuilder extends Builder {
 
         } catch (URISyntaxException ex) {
             Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
+            wj.print("]");
             wj.close();
             return false;
         }
-
+        //JSONArray structure
+        wj.print("]");
         wj.close();
         return true;
     }
