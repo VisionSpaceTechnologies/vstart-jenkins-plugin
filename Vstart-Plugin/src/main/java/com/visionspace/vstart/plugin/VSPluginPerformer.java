@@ -23,9 +23,10 @@ import org.json.JSONArray;
 public class VSPluginPerformer {
 
     private final Vstart vstObject; //Vstart object cannot be changed throughout a VSPluginPerformer instance's lifetime
-
+    private boolean _cancel;
     public VSPluginPerformer(Vstart vst) {
         this.vstObject = vst;
+        _cancel = false;
     }
 
     public Vstart getVstObject() {
@@ -86,7 +87,7 @@ public class VSPluginPerformer {
                     if (!logger.getBoolean("finished")) {
                         obj.wait(timeInterval);
                     }
-                } while (!logger.getBoolean("finished"));
+                } while (!logger.getBoolean("finished") && !_cancel);
             }
             return reportId;
         } catch (URISyntaxException ex) {
@@ -99,6 +100,10 @@ public class VSPluginPerformer {
             Logger.getLogger(VSPluginPerformer.class.getName()).log(Level.SEVERE, null, ex);
             return 0l;
         }
+    }
+    
+    public void cancel() {
+        _cancel = true;
     }
     
     public void logToWorkspace(Long reportId, AbstractBuild build){
