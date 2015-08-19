@@ -12,6 +12,7 @@ import hudson.model.BuildListener;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.json.JSONArray;
@@ -23,10 +24,9 @@ import org.json.JSONArray;
 public class VSPluginPerformer {
 
     private final Vstart vstObject; //Vstart object cannot be changed throughout a VSPluginPerformer instance's lifetime
-    private boolean _cancel;
+
     public VSPluginPerformer(Vstart vst) {
         this.vstObject = vst;
-        _cancel = false;
     }
 
     public Vstart getVstObject() {
@@ -74,10 +74,11 @@ public class VSPluginPerformer {
                     for (int i = 0; i < jArray.length(); i++) {
                         org.json.JSONObject json = jArray.getJSONObject(i);
                         Long eventTimeStamp = json.getLong("timestamp");
+                        Date date = new Date(eventTimeStamp);
                         listener.getLogger().println(json.getString("level")
-                                + " " + eventTimeStamp + " ["
+                                + " " + /*eventTimeStamp*/date + " ["
                                 + json.getString("resource") + "]" + " - "
-                                + json.getString("message"));
+                                + json.getString("message") + "\n");
                         
                         //Stores the latest timestamp
                         if (eventTimeStamp > timeStamp) {
@@ -87,7 +88,7 @@ public class VSPluginPerformer {
                     if (!logger.getBoolean("finished")) {
                         obj.wait(timeInterval);
                     }
-                } while (!logger.getBoolean("finished") && !_cancel);
+                } while (!logger.getBoolean("finished"));
             }
             return reportId;
         } catch (URISyntaxException ex) {
@@ -101,11 +102,7 @@ public class VSPluginPerformer {
             return 0l;
         }
     }
-    
-    public void cancel() {
-        _cancel = true;
-    }
-    
+
     public void logToWorkspace(Long reportId, AbstractBuild build){
         try {
             org.json.JSONObject report = vstObject.getReport(reportId);
