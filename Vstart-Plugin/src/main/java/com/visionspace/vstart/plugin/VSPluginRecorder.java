@@ -18,12 +18,6 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
-import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
@@ -49,20 +43,13 @@ public class VSPluginRecorder extends Recorder {
     
     @Override
      public boolean perform(AbstractBuild build, Launcher launcher, final BuildListener listener){
-         
-        FilePath ws = build.getWorkspace();
-        
-        if( ws == null){
-            listener.getLogger().println("Workspace is unreachable.");
-            return false;
-        }
-        
+     
         Result buildResult = build.getResult();
 
         if (!Result.SUCCESS.equals(buildResult)) {
             // Don't process for unsuccessful builds
             listener.getLogger().println("Build status is not SUCCESS (" + build.getResult().toString() + ").");
-            return true;
+            return false;
         }
                 
         return true;

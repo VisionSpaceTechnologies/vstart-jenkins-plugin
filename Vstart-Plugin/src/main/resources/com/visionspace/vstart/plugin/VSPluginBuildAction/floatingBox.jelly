@@ -15,14 +15,15 @@ and open the template in the editor.
             <center>
                 <table style="float:right">
                     <tr>
-                        <th>Name</th>
+                        <th>Script</th>
                         <th>Duration</th>
                         <th>Result</th>
                     </tr>
-                    <j:forEach var="report" items="${from.getReportList()}">
+                    <j:forEach var="report" items="${from.getReportList()}">   
+                        <j:set var="duration"  value="${report.getString('duration')}"/>
                         <tr>
                                 <td>${report.getString("scriptName")}</td>
-                                <td>${report.getLong("endTime") - report.getLong("startTime")}</td>
+                                <td>${duration}</td>
                                 <!--In case a test step has passed-->
                                 <j:if test='${report.getString("status").equals("PASSED")}'>
                                     <td class="statPassed">${report.getString("status")}</td>

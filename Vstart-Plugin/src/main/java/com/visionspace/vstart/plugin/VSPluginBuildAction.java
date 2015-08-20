@@ -13,7 +13,9 @@ import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -103,9 +105,17 @@ public class VSPluginBuildAction extends AbstractTestResultAction {
         ArrayList<JSONObject> reportList = new ArrayList<JSONObject>();
         
         for(int i = 0; i < json.length(); i++){
+            Long endTime = json.getJSONObject(i).getLong("endTime");
+            Long startTime = json.getJSONObject(i).getLong("startTime");
+            Long duration = endTime - startTime;
+            Date date = new Date(duration);
+            SimpleDateFormat sdf = new SimpleDateFormat("mm:ss");
+            String dateString = sdf.format(date);
+            json.getJSONObject(i).put("duration", dateString);
             reportList.add(json.getJSONObject(i));
         }
         
         return reportList;
     }
+    
 }
