@@ -7,12 +7,18 @@ package com.visionspace.vstart.plugin;
 
 import hudson.FilePath;
 import hudson.model.AbstractBuild;
+
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import net.sf.json.JSONSerializer;
+import org.apache.commons.io.IOUtils;
+import org.json.JSONObject;
 
 /**
  *
@@ -23,8 +29,12 @@ public class VSPluginHtmlWriter {
     public VSPluginHtmlWriter(){
     }
     
-    public boolean doHtmlReport(AbstractBuild build){
+    public boolean doHtmlReport(AbstractBuild build, JSONObject jsonReport){
         try {
+            if(jsonReport == null){
+                return false;
+            }
+            
             FilePath hPath = new FilePath(build.getWorkspace(), build.getWorkspace().toString() + "/VSTART_HTML");
             if(!hPath.exists()){
                 hPath.mkdirs();
@@ -32,11 +42,16 @@ public class VSPluginHtmlWriter {
             
             PrintWriter wp = new PrintWriter(hPath + "/VSTART_REPORT_" + build.getNumber() + ".html");
             StringBuilder builder = new StringBuilder();
-            builder.append("<!DOCTYPE html>");
-            builder.append("<html>");
-            builder.append("<head><title>Vstart Report</title></head>");
-            builder.append("<body><h1>Vstart Report</h1></body>");
-            builder.append("</html>");
+            builder.append("<!DOCTYPE html>").append("\n");
+            builder.append("<html>").append("\n");
+            builder.append("<head><title>Vstart Report</title></head>").append("\n");
+            builder.append("<body><h1>Vstart Report</h1>").append("\n");
+            builder.append("<div id='graph'></div>");
+            builder.append("<script type='text/javascript'").append("\n");
+            builder.append("data=").append(jsonReport.getString("extendedGraph")).append("\n");
+            builder.append("</script>").append("\n");
+            builder.append("</body>").append("\n");
+            builder.append("</html>").append("\n");
             
             wp.print(builder.toString());
             
@@ -53,4 +68,24 @@ public class VSPluginHtmlWriter {
             return false;
         }
     }
+    
+//    private JSONObject getJsonReport(AbstractBuild build) {
+//        
+//        InputStream reader = null;
+//        try {
+//            FilePath hPath = new FilePath(build.getWorkspace(), null)
+//            reader = new FileInputStream();
+//            String jsonText = IOUtils.toString(reader);
+//            JSONObject json = (JSONObject) JSONSerializer.toJSON(jsonText);
+//            return json;
+//        } catch (FileNotFoundException ex) {
+//            Logger.getLogger(VSPluginHtmlWriter.class.getName()).log(Level.SEVERE, null, ex);
+//        } finally {
+//            try {
+//                reader.close();
+//            } catch (IOException ex) {
+//                Logger.getLogger(VSPluginHtmlWriter.class.getName()).log(Level.SEVERE, null, ex);
+//            }
+//        }
+//    }
 }

@@ -115,6 +115,9 @@ public class VSPluginPerformer {
                     + build.getId() + ".json");
             wj.println(report.toString());
             wj.close();
+            
+            VSPluginHtmlWriter hWriter = new VSPluginHtmlWriter();
+            hWriter.doHtmlReport(build, report);
         } catch (URISyntaxException ex) {
             Logger.getLogger(VSPluginPerformer.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
