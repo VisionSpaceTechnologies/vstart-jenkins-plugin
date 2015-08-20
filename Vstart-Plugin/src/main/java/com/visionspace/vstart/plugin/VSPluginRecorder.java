@@ -18,6 +18,7 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
+import java.io.File;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
@@ -45,7 +46,12 @@ public class VSPluginRecorder extends Recorder {
      public boolean perform(AbstractBuild build, Launcher launcher, final BuildListener listener){
      
         Result buildResult = build.getResult();
-
+        VSPluginHtmlWriter hWriter = new VSPluginHtmlWriter();
+        
+        if(!hWriter.doHtmlReport(build)){
+            return false;
+        }
+        
         if (!Result.SUCCESS.equals(buildResult)) {
             // Don't process for unsuccessful builds
             listener.getLogger().println("Build status is not SUCCESS (" + build.getResult().toString() + ").");
