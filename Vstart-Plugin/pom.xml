@@ -32,10 +32,10 @@
   </pluginRepositories>
 
   <dependencies>
-      <dependency>
-        <groupId>com.visionspace</groupId>
-        <artifactId>vstartAPI</artifactId>
-        <version>0.3-SNAPSHOT</version>
+    <dependency>
+      <groupId>com.visionspace</groupId>
+      <artifactId>vstartAPI</artifactId>
+      <version>0.3-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>commons-validator</groupId>

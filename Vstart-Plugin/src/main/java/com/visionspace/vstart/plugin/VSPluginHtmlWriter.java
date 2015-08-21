@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import jenkins.model.Jenkins;
 import net.sf.json.JSONSerializer;
 import org.apache.commons.io.IOUtils;
 import org.json.JSONObject;
@@ -46,10 +47,14 @@ public class VSPluginHtmlWriter {
             builder.append("<html>").append("\n");
             builder.append("<head><title>Vstart Report</title></head>").append("\n");
             builder.append("<body><h1>Vstart Report</h1>").append("\n");
-            builder.append("<div id='graph'></div>");
-            builder.append("<script type='text/javascript'").append("\n");
-            builder.append("data=").append(jsonReport.getString("extendedGraph")).append("\n");
+            builder.append("<div id='graph' style='display: block; width: 800px; height: 600px;'></div>");
+            builder.append("<script type='text/javascript'>").append("\n");
+            builder.append("data=").append(new JSONObject(jsonReport.getString("extendedGraph")).toString()).append("\n");
             builder.append("</script>").append("\n");
+            builder.append("<script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/cytoscape/2.4.6/cytoscape.js'></script>").append("\n");
+            builder.append("<script type='text/javascript' src='"+ Jenkins.getInstance().getRootUrl() +"/plugin/Vstart-Plugin/dagre.js'></script>").append("\n");
+            builder.append("<script src='"+ Jenkins.getInstance().getRootUrl() +"/plugin/Vstart-Plugin/DesignGraph.js'></script>").append("\n");
+            builder.append("<script src='"+ Jenkins.getInstance().getRootUrl() +"/plugin/Vstart-Plugin/app.js'></script>").append("\n");
             builder.append("</body>").append("\n");
             builder.append("</html>").append("\n");
             
