@@ -73,7 +73,7 @@
 	 $(div).addClass("boxclass" + step.id);
 	 graph.updateGraphNode(div);
 	 
-	 $(div).html("<img src='assets/" + step.type + ".svg'>" + step.name);
+	 $(div).html("<img src='" + pathPrefix + "plugin/Vstart-Plugin/" + step.type + ".svg'>" + step.name);
 	 	 
 	 $(container).append(div);
 	 

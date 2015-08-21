@@ -42,7 +42,7 @@ function graph( containerId ) {
               'background-fit': 'contain',
               'background-clip': 'none',
               /*'background-color': 'red'*/
-              'background-image': 'assets/TestStepRoot.svg'
+              'background-image': pathPrefix + 'plugin/Vstart-Plugin/TestStepRoot.svg'
             })
             .selector('.TestStepLeaf')
             .css({
@@ -55,7 +55,7 @@ function graph( containerId ) {
               'background-fit': 'contain',
               'background-clip': 'none',
               /*'background-color': 'blue'*/
-              'background-image': 'assets/TestStepLeaf.svg'
+              'background-image': pathPrefix + 'plugin/Vstart-Plugin/TestStepLeaf.svg'
             })
           .selector('.TestStepScript')
             .css({
@@ -70,7 +70,7 @@ function graph( containerId ) {
               'background-fit': 'contain',
               'background-clip': 'none',
               'background-position-x':'0px',              
-              'background-image': 'assets/Grap  hNode.svg'
+              'background-image': pathPrefix + 'plugin/Vstart-Plugin/GraphNode.svg'
             })
           .selector('.highlighted')
             .css({
