@@ -44,6 +44,7 @@ public class VSPluginHtmlWriter {
 
             builder.append("<!DOCTYPE html>").append("\n");
             builder.append("<html>").append("\n");
+            builder.append("<link rel='stylesheet' href='http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'>").append("\n");
             builder.append("<head><title>Vstart Report</title></head>").append("\n");
             builder.append("<body><h1>Vstart Report</h1>").append("\n");
             //Graph
