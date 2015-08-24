@@ -67,12 +67,16 @@ public class VSPluginHtmlWriter {
                 builder.append("<div> \n <table> \n <tbody>").append("\n");
                 builder.append("<tr>\n" + "<td>Name: " + json.getString("scriptName").toString() + "</td>\n" + "<td>Language: "+ json.getString("scriptLanguage").toString() + "</td>\n"
                         + "<td>Status: " + json.getString("status").toString() + "</td>\n" +/* "<td>Return Value (Expected): " + json.getString("expectedValue").toString() +*/ "</td>\n"
-                        + "<td>Parameters: ");
-                //Print parameters
+                        + "<td>Parameters: <table><tbody>");
+                //Print parameters table
                 while(keys.hasNext()){
                     String key = (String) keys.next();
                     if( json.get(key) instanceof JSONObject){
-                        builder.append(key.toString() + " ").append(json.get(key).toString());
+                        builder.append("<tr>").append("\n");
+                        builder.append("<td>").append("\n");
+                        builder.append(key.toString()).append("</td>").append("\n");
+                        builder.append("<td>").append("\n");
+                        builder.append(json.get(key).toString()).append("</td>").append("\n");
                     }    
                 }
                 
