@@ -61,21 +61,22 @@ public class VSPluginHtmlWriter {
             //Table
             for (int i = 0; i < jSteps.length(); i++) {
                 JSONObject json = jSteps.getJSONObject(i);
-                Iterator<?> keys = json.keys();
+                JSONObject jParam = json.getJSONObject("scriptParameters");
+                Iterator<?> keys = jParam.keys();
                 
-                builder.append("<div> <h3>" + json.getString("scriptName").toString() + "</h3> </div>").append("\n");
-                builder.append("<div> \n <table> \n <tbody>").append("\n");
-                builder.append("<tr> \n <td>Language: </td>\n" + "<td>"+ json.getString("scriptLanguage").toString() + "</td>\n</tr>"
-                        + "<tr> \n <td>Status: </td>\n" + "<td>" + json.getString("status").toString() + "</td>\n</tr>" 
-                        + "<tr> \n <td> Source: </td> \n <td> \n <pre> \n" + json.getString("scriptSource").toString() + "</pre> \n </td> \n </tr>"
-                        /*  + "<tr> \n <td>Return Value (Expected): </td>\n"+"<td>"+ json.getString("expectedValue").toString() + "</td>\n</tr>"+*/
-                        + "<tr><td>Parameters: </td>\n" + "<td>\n<table>\n<tbody>\n");
+                builder.append("<div class='panel-heading' style='overflow: auto;'> <h3>" + json.getString("scriptName").toString() + "</h3> </div>").append("\n");
+                builder.append("<div class='col-md-6'> \n <table class='table'> \n <tbody>").append("\n");
+                builder.append("<tr> \n <td class='field-names'>Language: </td>\n" + "<td>"+ json.getString("scriptLanguage").toString() + "</td>\n</tr>"
+                        + "<tr> \n <td class='field-names'>Status: </td>\n" + "<td>" + json.getString("status").toString() + "</td>\n</tr>" 
+                        + "<tr> \n <td class='field-names'> Source: </td> \n <td> \n <pre> \n" + json.getString("scriptSource").toString() + "</pre> \n </td> \n </tr>"
+                          + "<tr> \n <td class='field-names'>Return Value (Expected): </td>\n"+"<td>"+ json.getString("expectedValue").toString() + "</td>\n</tr>"
+                        + "<tr><td class='field-names'>Parameters: </td>\n" + "<td>\n<table class='table table-striped'>\n<tbody>\n");
                 //Print parameters table
                 while(keys.hasNext()){
                     String key = (String) keys.next();
-                    if( json.get(key) instanceof JSONObject){
+                    if( jParam.get(key) instanceof JSONObject){
                         builder.append("<tr>").append("\n");
-                        builder.append("<td>").append("\n");
+                        builder.append("<td class='field-names'>").append("\n");
                         builder.append(key.toString()).append("</td>").append("\n");
                         builder.append("<td>").append("\n");
                         builder.append(json.get(key).toString()).append("</td>").append("\n");
@@ -83,8 +84,8 @@ public class VSPluginHtmlWriter {
                     }    
                 }
                 builder.append("</tbody> \n </table> \n </td>").append("\n");
-                builder.append("<tr>\n<td>Script Output: </td>\n" /*+ "<td>" + json.getString("scriptOutput").toString()+"</td>"+*/ + "</tr>\n"
-                        + "<tr><td>Return Value (Actual): </td>" /*+ "<td>" json.getString("returnValue").toString() + "</td>"*/ + "</tr>").append("\n");
+                builder.append("<tr>\n<td class='field-names'>Script Output: </td>\n" + "<td>" + json.getString("scriptOutput").toString()+"</td>" + "</tr>\n"
+                        + "<tr><td class='field-names'>Return Value (Actual): </td>" + "<td>" + json.getString("returnedValue").toString() + "</td>" + "</tr>").append("\n");
                 builder.append("</tbody> \n </table> \n </div>");
             }
             

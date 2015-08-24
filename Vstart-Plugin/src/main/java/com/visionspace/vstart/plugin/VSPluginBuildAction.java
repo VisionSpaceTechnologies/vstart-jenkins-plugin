@@ -41,7 +41,7 @@ public class VSPluginBuildAction extends AbstractTestResultAction {
 
     @Override
     public String getDisplayName() {
-        return "VSTART DUMMY";
+        return "VSTART Report";
     }
 
     @Override
