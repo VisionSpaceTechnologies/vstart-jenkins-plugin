@@ -18,6 +18,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import jenkins.model.Jenkins;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -46,7 +47,8 @@ public class VSPluginBuildAction extends AbstractTestResultAction {
 
     @Override
     public String getUrlName() {
-        return null;
+        String urlName = build.getProject().getAbsoluteUrl() + "ws/VSTART_HTML/VSTART_REPORT_" + build.getNumber() + ".html";
+        return urlName;
     }
     
     public AbstractBuild getBuild(){
