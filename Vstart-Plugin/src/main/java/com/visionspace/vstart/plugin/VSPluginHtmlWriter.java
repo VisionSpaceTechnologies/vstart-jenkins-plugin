@@ -6,7 +6,6 @@
 package com.visionspace.vstart.plugin;
 
 import hudson.FilePath;
-import hudson.Functions;
 import hudson.model.AbstractBuild;
 
 import java.io.FileNotFoundException;
@@ -65,9 +64,11 @@ public class VSPluginHtmlWriter {
                 
                 builder.append("<div> <h3>" + json.getString("scriptName").toString() + "</h3> </div>").append("\n");
                 builder.append("<div> \n <table> \n <tbody>").append("\n");
-                builder.append("<tr>\n" + "<td>Name: " + json.getString("scriptName").toString() + "</td>\n" + "<td>Language: "+ json.getString("scriptLanguage").toString() + "</td>\n"
-                        + "<td>Status: " + json.getString("status").toString() + "</td>\n" +/* "<td>Return Value (Expected): " + json.getString("expectedValue").toString() +*/ "</td>\n"
-                        + "<td>Parameters: <table><tbody>");
+                builder.append("<tr> \n <td>Language: </td>\n" + "<td>"+ json.getString("scriptLanguage").toString() + "</td>\n</tr>"
+                        + "<tr> \n <td>Status: </td>\n" + "<td>" + json.getString("status").toString() + "</td>\n</tr>" 
+                        + "<tr> \n <td> Source: </td> \n <td> \n <pre> \n" + json.getString("scriptSource").toString() + "</pre> \n </td> \n </tr>"
+                        /*  + "<tr> \n <td>Return Value (Expected): </td>\n"+"<td>"+ json.getString("expectedValue").toString() + "</td>\n</tr>"+*/
+                        + "<tr><td>Parameters: </td>\n" + "<td>\n<table>\n<tbody>\n");
                 //Print parameters table
                 while(keys.hasNext()){
                     String key = (String) keys.next();
@@ -77,11 +78,12 @@ public class VSPluginHtmlWriter {
                         builder.append(key.toString()).append("</td>").append("\n");
                         builder.append("<td>").append("\n");
                         builder.append(json.get(key).toString()).append("</td>").append("\n");
+                        builder.append("</tr>").append("\n");
                     }    
                 }
-                
-                builder.append("</td>\n" + "<td>Script Output: " /*+ json.getString("scriptOutput").toString()+*/ + "</td>\n"
-                        + "<td>Return Value (Actual): " /*+ json.getString("returnValue").toString()*/ + "</td>\n" + "</tr>").append("\n");
+                builder.append("</tbody> \n </table> \n </td>").append("\n");
+                builder.append("<tr>\n<td>Script Output: </td>\n" /*+ "<td>" + json.getString("scriptOutput").toString()+"</td>"+*/ + "</tr>\n"
+                        + "<tr><td>Return Value (Actual): </td>" /*+ "<td>" json.getString("returnValue").toString() + "</td>"*/ + "</tr>").append("\n");
                 builder.append("</tbody> \n </table> \n </div>");
             }
             
