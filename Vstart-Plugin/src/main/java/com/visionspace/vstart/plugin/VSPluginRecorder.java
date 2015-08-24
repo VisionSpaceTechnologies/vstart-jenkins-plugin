@@ -6,7 +6,6 @@
 package com.visionspace.vstart.plugin;
 
 import hudson.Extension;
-import hudson.FilePath;
 import hudson.Launcher;
 import hudson.model.AbstractBuild;
 import hudson.model.AbstractProject;
@@ -18,8 +17,6 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
-import java.io.File;
-import org.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
