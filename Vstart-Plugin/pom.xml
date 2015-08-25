@@ -54,5 +54,11 @@
       <version>1.576</version>
       <type>jar</type>
     </dependency>
+    <dependency>
+        <groupId>xom</groupId>
+        <artifactId>xom</artifactId>
+        <version>1.2.5</version>
+        <type>jar</type>
+    </dependency>
   </dependencies>
 </project>

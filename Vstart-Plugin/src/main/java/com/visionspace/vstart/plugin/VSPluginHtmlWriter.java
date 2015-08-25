@@ -7,6 +7,7 @@ package com.visionspace.vstart.plugin;
 
 import hudson.FilePath;
 import hudson.model.AbstractBuild;
+import java.io.File;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -17,7 +18,7 @@ import java.util.logging.Logger;
 import jenkins.model.Jenkins;
 import org.json.JSONArray;
 import org.json.JSONObject;
-
+import nu.xom.*;
 /**
  *
  * @author pedro.marinho
@@ -38,7 +39,8 @@ public class VSPluginHtmlWriter {
                 hPath.mkdirs();
             }
             JSONArray jSteps = jsonReport.getJSONArray("steps");
-
+            
+            //See if 
             PrintWriter wp = new PrintWriter(hPath + "/VSTART_REPORT_" + build.getNumber() + ".html");
             StringBuilder builder = new StringBuilder();
 
@@ -205,6 +207,22 @@ public class VSPluginHtmlWriter {
             Logger.getLogger(VSPluginHtmlWriter.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         } catch (InterruptedException ex) {
+            Logger.getLogger(VSPluginHtmlWriter.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        }
+    }
+    
+    
+    private boolean appendWithXOM(AbstractBuild build, JSONObject jsonReport){
+        try {
+            Builder parser = new Builder();
+            Document doc = parser.build(new File(build.getWorkspace().toString() + "/VSTART_HTML" + "/VSTART_REPORT_" + build.getNumber() + ".html"));
+            
+            return true;
+        } catch (ParsingException ex) {
+            Logger.getLogger(VSPluginHtmlWriter.class.getName()).log(Level.SEVERE, null, ex);
+            return false;
+        } catch (IOException ex) {
             Logger.getLogger(VSPluginHtmlWriter.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
