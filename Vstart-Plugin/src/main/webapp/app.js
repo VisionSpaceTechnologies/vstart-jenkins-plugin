@@ -1,7 +1,14 @@
 var dGraph;
 
 window.onload = function() {
-    drawDirectedGraph("graph", data);
+    //for each graphId and data, do a graph
+    for( i = 0; i < arr.length; i++){
+            keys = Object.keys(arr[i]);
+            graphId = keys[0];
+            dataString = JSON.stringify(arr[i][graphId]);
+            data = JSON.parse(dataString);
+            drawDirectedGraph(graphId, data);
+    }
 }
 
 function drawDirectedGraph(id, data) {

@@ -26,7 +26,6 @@ import java.util.logging.Logger;
 import jenkins.model.Jenkins;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import nu.xom.*;
 
 /**
  *
@@ -39,6 +38,8 @@ public class VSPluginHtmlWriter {
 
     public boolean doHtmlReport(AbstractBuild build, JSONObject jsonReport) {
         try {
+            boolean isFirstTime = true;
+
             if (jsonReport == null) {
                 return false;
             }
@@ -63,7 +64,7 @@ public class VSPluginHtmlWriter {
 //            builder.append("<link rel='stylesheet' href='http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'>").append("\n");
                 builder.append("<head> "
                         + "<meta charset='utf-8'>"
-                        + "<meta name='viewport' content='width=\"device-width\", initial-scale=1'> "
+                        + "<meta name='viewport' content='width=\"device-width\"', initial-scale=1'> "
                         + "<link rel='stylesheet' href='http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'>"
                         + "<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js'></script>"
                         + "<script src='http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js'></script>"
@@ -91,31 +92,54 @@ public class VSPluginHtmlWriter {
                 builder.append("<body>\n").append("\n");
                 wp.print(builder.toString());
                 wp.close();
+                //The flag is true
+                isFirstTime = true;
 
             } else { //If it does exist, remove the closing tags for body and html
                 //Remove </html> and </body>
                 deleteTag(htmlReportFile, "</html>");
                 deleteTag(htmlReportFile, "</body>");
+                isFirstTime = false;
             }
 
             //append to file
             FileWriter fileWriter = new FileWriter(htmlReportFile, true);
             BufferedWriter wp = new BufferedWriter(fileWriter);
-            
+
             StringBuilder builder = new StringBuilder();
 
             builder.append("        <div class=\"container-fluid\">\n"
-                    + "            <h1>VSTART Report #" + build.getNumber() + "</h1>").append("\n");
+                    + "            <h1>VSTART Report #" + build.getNumber() + " - Test Case: " + jsonReport.getString("testCaseName") + "</h1>").append("\n");
 
             //Graph
             Random rand = new Random();
             int id = rand.nextInt(1000) + 1;
-            
+
             builder.append("<div class=\"center\">\n"
-                    + "                <div id='graph" + id +"' style='display: block; width: 800px; height: 600px;'></div>\n"
+                    + "                <div id='graph" + id + "' style='display: block; width: 800px; height: 600px;'></div>\n"
                     + "            </div>            \n"
                     + "            <script type='text/javascript'>").append("\n");
-            builder.append("data=").append(new JSONObject(jsonReport.getString("extendedGraph")).toString()).append("\n");
+
+            //if this is the first testcase, the object array must be initialized
+            if (isFirstTime) {
+                //create object
+                builder.append("obj = {}").append("\n");
+                //insert key and value
+                builder.append("obj.graph" + id + " = " + new JSONObject(jsonReport.getString("extendedGraph")).toString()).append("\n");
+                //create array
+                builder.append("var arr = []").append("\n");
+                //push to array
+                builder.append("arr.push(obj)").append("\n");
+            } else {
+                //create object
+                builder.append("obj = {}").append("\n");
+                //insert key and value
+                builder.append("obj.graph" + id + " = " + new JSONObject(jsonReport.getString("extendedGraph")).toString()).append("\n");
+                //push to array
+                builder.append("arr.push(obj)").append("\n");
+            }
+//            builder.append("var graphId =").append(Integer.toString(id)).append(";").append("\n");
+//            builder.append("data=").append(new JSONObject(jsonReport.getString("extendedGraph")).toString()).append("\n");
             builder.append("pathPrefix=").append(" '" + Jenkins.getInstance().getRootUrl()).append("' \n");
             builder.append("</script>\n"
                     + "            <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/cytoscape/2.4.6/cytoscape.js'></script>\n"
@@ -129,8 +153,6 @@ public class VSPluginHtmlWriter {
             builder.append("<div class=\"container-fluid\">\n").append("\n");
             for (int i = 0; i < jSteps.length(); i++) {
                 JSONObject json = jSteps.getJSONObject(i);
-                JSONObject jParam = json.getJSONObject("scriptParameters"); //Parameters JSONObject for iteration
-                Iterator<?> keys = jParam.keys();
 
                 if ((i % 2) == 0) {
                     builder.append("            <div class='row'>\n").append("\n");
@@ -178,6 +200,9 @@ public class VSPluginHtmlWriter {
                         + "                                </tr>").append("\n");
 
                 //Print parameters table
+                JSONObject jParam = json.getJSONObject("scriptParameters"); //Parameters JSONObject for iteration
+                Iterator<?> keys = jParam.keys();
+
                 builder.append("                                    <td class='field-names'>Parameters: </td>\n"
                         + "                                    <td>\n"
                         + "                                        <table class='table table-striped'>\n"
@@ -219,6 +244,32 @@ public class VSPluginHtmlWriter {
                     builder.append("            </div>\n").append("\n");
                 }
             }
+
+            //add testbed panel
+            builder.append("<div class='panel panel-default'>").append("");
+            builder.append("<div class='panel-heading'> TESTBED </div>").append("\n");
+            builder.append("<table class='table table-hover table-striped machines'>").append("\n");
+            builder.append("<tbody>").append("\n");
+            
+            //Loop through JSONObject
+            JSONObject jTestBed = jsonReport.getJSONObject("testBed");
+            Iterator<?> testKeys = jTestBed.keys();
+            
+            while (testKeys.hasNext()) {
+                String key = (String) testKeys.next();
+                if (jTestBed.get(key) instanceof String) {
+                    builder.append("<tr>").append("\n");
+                    builder.append("<td'>").append("\n");
+                    builder.append(key).append("</td>").append("\n");
+                    builder.append("<td>").append("\n");
+                    builder.append(jTestBed.get(key).toString()).append("</td>").append("\n");
+                    builder.append("</tr>").append("\n");
+                }
+            }
+            builder.append("</tbody>").append("\n");
+            builder.append("</table>").append("\n");
+            builder.append("</div>").append("\n");
+            builder.append("</div>").append("\n");
 
             //Finish document
             builder.append("            </div>\n"
@@ -278,10 +329,10 @@ public class VSPluginHtmlWriter {
                 line = line.replace(tag, "");
                 writer.println(line);
             }
-            
+
             reader.close();
             writer.close();
-            
+
             file.delete();
             temp.renameTo(file);
 
