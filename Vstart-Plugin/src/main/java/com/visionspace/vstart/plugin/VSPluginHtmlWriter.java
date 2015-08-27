@@ -7,18 +7,10 @@ package com.visionspace.vstart.plugin;
 
 import hudson.FilePath;
 import hudson.model.AbstractBuild;
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileInputStream;
-
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.Random;
 import java.util.logging.Level;
@@ -50,6 +42,10 @@ public class VSPluginHtmlWriter {
 
             //Create file on workspace
             File htmlReportFile = new File(build.getWorkspace() + "/VSTART_HTML" + "/VSTART_REPORT_" + build.getNumber() + ".html");
+            
+            if(!htmlReportFile.createNewFile()){
+                return false;
+            }
 
             //append on file with fileWriter
             FileWriter fileWriter = new FileWriter(htmlReportFile, true);
@@ -119,13 +115,15 @@ public class VSPluginHtmlWriter {
                     builder.append("var arr = []").append("\n");
                     //push to array
                     builder.append("arr.push(obj)").append("\n");
+                    //invert variable
+                    isFirstTime = false;
                 } else {
                     //create object
                     builder.append("obj = {}").append("\n");
                     //insert key and value
-                    builder.append("obj.graph" + id + " = " + new JSONObject(jsonReport.getString("extendedGraph")).toString()).append("\n");
+                    builder.append("obj.graph" + id + " = " + new JSONObject(jsonReport.getString("extendedGraph")).toString() +";").append("\n");
                     //push to array
-                    builder.append("arr.push(obj)").append("\n");
+                    builder.append("arr.push(obj);").append("\n");
                 }
 //            builder.append("var graphId =").append(Integer.toString(id)).append(";").append("\n");
 //            builder.append("data=").append(new JSONObject(jsonReport.getString("extendedGraph")).toString()).append("\n");
@@ -144,7 +142,7 @@ public class VSPluginHtmlWriter {
                 for (int j = 0; j < jSteps.length(); j++) {
                     JSONObject json = jSteps.getJSONObject(j);
 
-                    if ((i % 2) == 0) {
+                    if ((j % 2) == 0) {
                         builder.append("            <div class='row'>\n").append("\n");
                     }
                     builder.append("                <div class='col-md-6'>\n"
@@ -230,7 +228,7 @@ public class VSPluginHtmlWriter {
                             + "                    </div>\n"
                             + "                </div>").append("\n");
 
-                    if ((i % 2) != 0) {
+                    if ((j % 2) != 0) {
                         builder.append("            </div>\n").append("\n");
                     }
                 }
@@ -265,6 +263,7 @@ public class VSPluginHtmlWriter {
                 }
                 builder.append("</tbody>").append("\n");
                 builder.append("</table>").append("\n");
+                builder.append("</div>").append("\n");
                 builder.append("</div>").append("\n");
                 builder.append("</div>").append("\n");
                 builder.append("</div>").append("\n");
