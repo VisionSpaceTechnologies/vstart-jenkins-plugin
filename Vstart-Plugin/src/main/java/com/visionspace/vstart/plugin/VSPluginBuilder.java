@@ -301,7 +301,7 @@ public static class Descriptor extends BuildStepDescriptor<Builder> {
     public FormValidation doCheckTestCase(@QueryParameter("testCase") final long id) {
         boolean test = isValidTestCase(id);
         if (test) {
-            return FormValidation.ok();
+            return FormValidation.ok("Test Case Available.");
         } else {
             return FormValidation.error("This test case is not available at the time, please select another.");
         }
