@@ -70,7 +70,7 @@ public class VSPluginBuildAction extends AbstractTestResultAction {
             JSONArray json = jObj.getJSONArray("steps");
             return json;
         } catch (IOException ex) {
-            Logger.getLogger(VSPluginRecorder.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(VSPluginPublisher.class.getName()).log(Level.SEVERE, null, ex);
             return new JSONArray();
         }
         

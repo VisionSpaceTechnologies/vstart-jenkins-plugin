@@ -30,10 +30,10 @@ import org.kohsuke.stapler.DataBoundConstructor;
  *
  * @author pedro.marinho
  */
-public class VSPluginRecorder extends Recorder {
+public class VSPluginPublisher extends Publisher {
 
     @DataBoundConstructor
-    public VSPluginRecorder() {
+    public VSPluginPublisher() {
 
     }
 
@@ -79,18 +79,19 @@ public class VSPluginRecorder extends Recorder {
             boolean reportResult = htmlWriter.doHtmlReport(build, reports);
             
             return reportResult;
+            
         } catch (IOException ex) {
-            Logger.getLogger(VSPluginRecorder.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(VSPluginPublisher.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         } catch (InterruptedException ex) {
-            Logger.getLogger(VSPluginRecorder.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(VSPluginPublisher.class.getName()).log(Level.SEVERE, null, ex);
             return false;
         }
     }
 
     @Override
     public BuildStepDescriptor getDescriptor() {
-        return super.getDescriptor();
+        return (BuildStepDescriptor) super.getDescriptor();
     }
 
     @Override
