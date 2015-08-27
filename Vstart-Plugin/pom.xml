@@ -32,10 +32,10 @@
   </pluginRepositories>
 
   <dependencies>
-      <dependency>
-        <groupId>com.visionspace</groupId>
-        <artifactId>vstartAPI</artifactId>
-        <version>0.3-SNAPSHOT</version>
+    <dependency>
+      <groupId>com.visionspace</groupId>
+      <artifactId>vstartAPI</artifactId>
+      <version>0.3-SNAPSHOT</version>
     </dependency>
     <dependency>
       <groupId>commons-validator</groupId>
@@ -53,6 +53,12 @@
       <artifactId>jenkins-core</artifactId>
       <version>1.576</version>
       <type>jar</type>
+    </dependency>
+    <dependency>
+        <groupId>xom</groupId>
+        <artifactId>xom</artifactId>
+        <version>1.2.5</version>
+        <type>jar</type>
     </dependency>
   </dependencies>
 </project>

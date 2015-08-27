@@ -9,9 +9,12 @@ import com.visionspace.vstart.api.Vstart;
 import hudson.FilePath;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -110,11 +113,25 @@ public class VSPluginPerformer {
             if (!jPath.exists()) {
                 jPath.mkdirs();
             }
-
-            PrintWriter wj = new PrintWriter(jPath + "/VSTART_JSON_"
-                    + build.getId() + ".json");
-            wj.println(report.toString());
+            
+            String filePath = jPath + "/VSTART_JSON_"
+                    + build.getId() + ".json";
+            
+            JSONArray reports;
+            try {
+                String content = new String(Files.readAllBytes(Paths.get(filePath)));
+                reports = new JSONArray(content);
+            } catch (IOException e) {
+                Logger.getLogger(VSPluginPerformer.class.getName()).log(Level.WARNING, null, e);
+                reports = new JSONArray();
+            }
+            
+            reports.put(report);
+            
+            PrintWriter wj = new PrintWriter(filePath);
+            wj.println(reports.toString());
             wj.close();
+
         } catch (URISyntaxException ex) {
             Logger.getLogger(VSPluginPerformer.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
