@@ -87,39 +87,20 @@ public class VSPluginHtmlWriter {
 
             //Body
             builder.append("<body>\n").append("\n");
-            //Title
+            //Structure
+            builder.append("<div class=\"container-fluid\">\n").append("\n");
+            builder.append("<div class='row'>\n").append("\n");
+            //Main column
+            builder.append("<div class='col-md-9'style=\"\n"
+                    + "    border-right: lightgray dashed 1px;\n" 
+                    +   "\">\n").append("\n");
+            
+            //Header
             builder.append("<div class=\"container-fluid\">\n").append("\n");
             builder.append("<h1>VSTART Report #" + build.getNumber() + "</h1>").append("\n");
 //            builder.append("<p class='lead'>Started:" + build + "</p>").append("\n");
             builder.append("<p class='lead'>Duration:" + build.getDurationString() + "</p>").append("\n");
             builder.append("</div>\n").append("\n");
-
-            //links to testcase information
-            builder.append("<div class='container-fluid'>").append("\n");
-            builder.append("<ul class='list-group'>").append("\n");
-
-            for (int c = 0; c < jArrayReport.length(); c++) {
-                JSONObject jsonReport = jArrayReport.getJSONObject(c);
-                builder.append("<li class='list-group-item'>").append("\n");
-                builder.append("<a href='#testcase" + c + "'>").append("\n");
-                builder.append("Test Case: " + jsonReport.getString("testCaseName")).append("\n");
-                builder.append("</a>").append("\n");
-
-                builder.append("<ul class='list-group'>").append("\n");
-                JSONArray jArray = jsonReport.getJSONArray("steps");
-                for (int d = 0; d < jArray.length(); d++) {
-                    builder.append("<li class='list-group-item'>").append("\n");
-                    builder.append("<a href='#step" + c + d + "'>").append("\n");
-                    builder.append("Step #"+ d + ":" + jArray.getJSONObject(d).getString("scriptName")).append("\n");
-                    builder.append("</a>").append("\n");
-                    builder.append("</li>").append("\n");
-                }
-                builder.append("</ul>").append("\n");
-                builder.append("</li>").append("\n");
-            }
-
-            builder.append("</ul>").append("\n");
-            builder.append("</div>").append("\n");
 
             boolean isFirstTime = true; //Control graph ids to communicate with javascript
 
@@ -176,24 +157,22 @@ public class VSPluginHtmlWriter {
                 builder.append("pathPrefix=").append(" '" + Jenkins.getInstance().getRootUrl()).append("' \n");
                 builder.append("</script>\n"
                         + "            <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/cytoscape/2.4.6/cytoscape.js'></script>\n"
-                        + "            <script type='text/javascript' src='http://localhost:8080/jenkins/plugin/Vstart-Plugin/dagre.js'></script>\n"
-                        + "            <script src='http://localhost:8080/jenkins/plugin/Vstart-Plugin/DesignGraph.js'></script>\n"
-                        + "            <script src='http://localhost:8080/jenkins/plugin/Vstart-Plugin/app.js'></script>").append("\n");
-
+                        + "            <script type='text/javascript' src='/jenkins/plugin/Vstart-Plugin/dagre.js'></script>\n"
+                        + "            <script type='text/javascript' src='/jenkins/plugin/Vstart-Plugin/DesignGraph.js'></script>\n"
+                        + "            <script type='text/javascript' src='/jenkins/plugin/Vstart-Plugin/app.js'></script>").append("\n");
+                
             //end of Graph
                 //Table
                 builder.append("<div class=\"container-fluid\">\n").append("\n");
+                builder.append("<div class=\"row\">\n").append("\n");
                 JSONArray jSteps = jsonReport.getJSONArray("steps");
                 for (int j = 0; j < jSteps.length(); j++) {
                     JSONObject json = jSteps.getJSONObject(j);
 
-                    if ((j % 2) == 0) {
-                        builder.append("            <div class='row'>\n").append("\n");
-                    }
-                    builder.append("                <div class='col-md-6'>\n"
+                    builder.append("                <div class='col-lg-6 col-md-12'>\n"
                             + "                    <div class=\"panel panel-default\">\n"
                             + "                        <div class='panel-heading' style='overflow: auto;'> ").append("\n");
-                    builder.append("<h3 " + "id='step" + i + j + "'>" + "Step #" + j + json.getString("scriptName").toString() + "</h3>"
+                    builder.append("<h3 " + "id='step" + i + j + "'>" + "Step #" + j +" : " + json.getString("scriptName").toString() + "</h3>"
                             + "</div>").append("\n");
                     builder.append("<table class='table'> \n"
                             + "                            <tbody>").append("\n");
@@ -273,16 +252,18 @@ public class VSPluginHtmlWriter {
                             + "                    </div>\n"
                             + "                </div>").append("\n");
 
-                    if ((j % 2) != 0) {
-                        builder.append("            </div>\n").append("\n");
-                    }
+                    
+                    
                 }
-
+                builder.append("            </div>\n").append("\n");
+                builder.append("            </div>\n").append("\n");
+                
                 //add testbed panel
                 builder.append("<div class=\"container-fluid\">\n").append("\n");
+                builder.append("<div class=\"row\">\n").append("\n");
                 builder.append("<div class=\"col-md-12\">\n").append("\n");
                 builder.append("<div class='panel panel-default'>").append("");
-                builder.append("<div class='panel-heading'> TESTBED </div>").append("\n");
+                builder.append("<div class='panel-heading' id='testbed"+ i +"'> TESTBED </div>").append("\n");
                 builder.append("<table class='table table-hover table-striped machines'>").append("\n");
                 builder.append("<thead>").append("\n");
                 builder.append("<tr class='step-headers'>").append("\n");
@@ -312,8 +293,53 @@ public class VSPluginHtmlWriter {
                 builder.append("</div>").append("\n");
                 builder.append("</div>").append("\n");
                 builder.append("</div>").append("\n");
-                builder.append("</div>").append("\n");
+                
+                
             }
+            
+            
+            builder.append("</div>").append("\n");
+            
+            builder.append("<div class='col-md-3'>").append("\n");
+            builder.append("<nav class='sidebar hidden-xs hidden-print hidden-sm affix'>").append("\n");
+            //links to testcase information
+            builder.append("<h4>VSTART Report #" + build.getNumber() +"</h4>");
+            builder.append("<ul>").append("\n");
+            for (int c = 0; c < jArrayReport.length(); c++) {
+                JSONObject jsonReport = jArrayReport.getJSONObject(c);
+                builder.append("<li>").append("\n");
+                builder.append("<a href='#testcase" + c + "'>").append("\n");
+                builder.append("<b>").append("\n");
+                builder.append("Test Case: " + jsonReport.getString("testCaseName")).append("\n");
+                builder.append("</b>").append("\n");
+                builder.append("</a>").append("\n");
+
+                //Steps
+                builder.append("<ul>").append("\n");
+                JSONArray jArray = jsonReport.getJSONArray("steps");
+                for (int d = 0; d < jArray.length(); d++) {
+                    builder.append("<li>").append("\n");
+                    builder.append("<a href='#step" + c + d + "'>").append("\n");
+                    builder.append("Step #"+ d + ":" + jArray.getJSONObject(d).getString("scriptName")).append("\n");
+                    builder.append("</a>").append("\n");
+                    builder.append("</li>").append("\n");
+                }
+                
+                //testbed
+                builder.append("<li>").append("\n");
+                builder.append("<a href='#testbed" + c + "'>").append("\n");
+                builder.append("Testbed").append("\n");
+                builder.append("</a>").append("\n");
+                builder.append("</li>").append("\n");
+                    
+                builder.append("</ul>").append("\n");
+                builder.append("</li>").append("\n");
+            }
+
+            builder.append("                        </ul>").append("\n");
+            builder.append("                    </nav>").append("\n");
+            builder.append("                </div>").append("\n");
+            
             //Finish document
             builder.append("            </div>\n"
                     + "        </div>\n"
