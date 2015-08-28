@@ -18,23 +18,11 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.QueryParameter;
 import com.visionspace.vstart.api.Vstart;
-import hudson.FilePath;
 import hudson.model.FreeStyleProject;
 import hudson.model.Job;
 import hudson.util.ListBoxModel;
-import java.io.FileNotFoundException;
-
-import javax.servlet.ServletException;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,7 +30,6 @@ import jenkins.model.Jenkins;
 import org.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.AncestorInPath;
-import org.kohsuke.stapler.bind.JavaScriptMethod;
 
 /**
  * Vstart Plugin Builder
@@ -122,16 +109,17 @@ public class VSPluginBuilder extends Builder {
             }
             
             //log JSON file to workspace
-            performer.logToWorkspace(reportId, build);
+            boolean result = performer.logToWorkspace(reportId, build);
             
             //close VSTART session
             performer.getVstObject().close();
-            return true;
+            return result;
             
         } catch (URISyntaxException ex) {
             Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
         }
+        
+        return false;
     }
 
 

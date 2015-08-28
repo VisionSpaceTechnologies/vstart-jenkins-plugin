@@ -34,7 +34,8 @@ public class VSPluginProjectAction extends TestResultProjectAction {
 
     @Override
     public String getUrlName() {
-        return "vstart";
+        String urlName = project.getAbsoluteUrl() + "ws/VSTART_HTML/VSTART_REPORT_" + project.getLastSuccessfulBuild().getNumber() + ".html";
+        return urlName;
     }
 
     public AbstractProject getProject() {

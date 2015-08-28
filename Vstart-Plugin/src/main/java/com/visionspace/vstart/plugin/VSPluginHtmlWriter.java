@@ -42,8 +42,8 @@ public class VSPluginHtmlWriter {
 
             //Create file on workspace
             File htmlReportFile = new File(build.getWorkspace() + "/VSTART_HTML" + "/VSTART_REPORT_" + build.getNumber() + ".html");
-            
-            if(!htmlReportFile.createNewFile()){
+
+            if (!htmlReportFile.createNewFile()) {
                 return false;
             }
 
@@ -59,8 +59,8 @@ public class VSPluginHtmlWriter {
             //Head
             builder.append("<head> "
                     + "<meta charset='utf-8'>"
-                    + "<meta name='viewport' content='width=\"device-width\"', initial-scale=1'> "
-                    + "<link rel='stylesheet' href='http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'>"
+                    + "<meta name='viewport' content='width=\"device-width\", initial-scale=1'> "
+                    + "<link rel='stylesheet' href='/jenkins/plugin/Vstart-Plugin/theme.min.css'>"
                     + "<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js'></script>"
                     + "<script src='http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js'></script>"
                     + "<style type='text/css'>"
@@ -87,23 +87,50 @@ public class VSPluginHtmlWriter {
 
             //Body
             builder.append("<body>\n").append("\n");
+            //Structure
+            builder.append("<div class=\"container-fluid\">\n").append("\n");
+            builder.append("<div class='row'>\n").append("\n");
+            //Main column
+            builder.append("<div class='col-md-9'style=\"\n"
+                    + "    border-right: lightgray dashed 1px;\n" 
+                    +   "\">\n").append("\n");
+            
+            //Header
+            builder.append("<div class=\"container-fluid\">\n").append("\n");
+            builder.append("<h1>VSTART Report #" + build.getNumber() + "</h1>").append("\n");
+//            builder.append("<p class='lead'>Started:" + build + "</p>").append("\n");
+            builder.append("<p class='lead'>Duration:" + build.getDurationString() + "</p>").append("\n");
+            builder.append("</div>\n").append("\n");
+
             boolean isFirstTime = true; //Control graph ids to communicate with javascript
 
             for (int i = 0; i < jArrayReport.length(); i++) {
                 //get testcase jsonobject report
                 JSONObject jsonReport = jArrayReport.getJSONObject(i);
-                
+
                 builder.append("        <div class=\"container-fluid\">\n"
-                        + "            <h1>VSTART Report #" + build.getNumber() + " - Test Case: " + jsonReport.getString("testCaseName") + "</h1>").append("\n");
+                        + "            <h2"
+                        + " id=\"testcase" + i
+                        + "\">" + "Test Case - "
+                        + jsonReport.getString("testCaseName")
+                        + "</h2>").append("\n");
 
                 //Graph
                 Random rand = new Random();
                 int id = rand.nextInt(1000) + 1;
 
-                builder.append("<div class=\"center\">\n"
-                        + "                <div id='graph" + id + "' style='display: block; width: 800px; height: 600px;'></div>\n"
+                builder.append("<div class= 'row'>"
+                        + "<div class='col-md-12'>"
+                        + "<div class='panel panel-default'>"
+                        + "<div class='panel-heading'> Test Case Execution Graph </div>"
+                        + "<div class='panel-body'>"
+                        + "                <div id='graph" + id + "' style='/*display: block;*/ width: 100%; height: 600px;' class='center-block'></div>\n"
                         + "            </div>            \n"
-                        + "            <script type='text/javascript'>").append("\n");
+                        + "            </div>            \n"
+                        + "            </div>            \n"
+                        + "            </div>            \n"
+                        + "            </div>            \n").append("\n");
+                builder.append("            <script type='text/javascript'>").append("\n");
 
                 //if this is the first testcase, the object array must be initialized
                 if (isFirstTime) {
@@ -121,7 +148,7 @@ public class VSPluginHtmlWriter {
                     //create object
                     builder.append("obj = {}").append("\n");
                     //insert key and value
-                    builder.append("obj.graph" + id + " = " + new JSONObject(jsonReport.getString("extendedGraph")).toString() +";").append("\n");
+                    builder.append("obj.graph" + id + " = " + new JSONObject(jsonReport.getString("extendedGraph")).toString() + ";").append("\n");
                     //push to array
                     builder.append("arr.push(obj);").append("\n");
                 }
@@ -130,25 +157,22 @@ public class VSPluginHtmlWriter {
                 builder.append("pathPrefix=").append(" '" + Jenkins.getInstance().getRootUrl()).append("' \n");
                 builder.append("</script>\n"
                         + "            <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/cytoscape/2.4.6/cytoscape.js'></script>\n"
-                        + "            <script type='text/javascript' src='http://localhost:8080/jenkins/plugin/Vstart-Plugin/dagre.js'></script>\n"
-                        + "            <script src='http://localhost:8080/jenkins/plugin/Vstart-Plugin/DesignGraph.js'></script>\n"
-                        + "            <script src='http://localhost:8080/jenkins/plugin/Vstart-Plugin/app.js'></script>").append("\n");
-                builder.append("</div>").append("\n");
+                        + "            <script type='text/javascript' src='/jenkins/plugin/Vstart-Plugin/dagre.js'></script>\n"
+                        + "            <script type='text/javascript' src='/jenkins/plugin/Vstart-Plugin/DesignGraph.js'></script>\n"
+                        + "            <script type='text/javascript' src='/jenkins/plugin/Vstart-Plugin/app.js'></script>").append("\n");
+                
             //end of Graph
-
                 //Table
                 builder.append("<div class=\"container-fluid\">\n").append("\n");
+                builder.append("<div class=\"row\">\n").append("\n");
                 JSONArray jSteps = jsonReport.getJSONArray("steps");
                 for (int j = 0; j < jSteps.length(); j++) {
                     JSONObject json = jSteps.getJSONObject(j);
 
-                    if ((j % 2) == 0) {
-                        builder.append("            <div class='row'>\n").append("\n");
-                    }
-                    builder.append("                <div class='col-md-6'>\n"
+                    builder.append("                <div class='col-lg-6 col-md-12'>\n"
                             + "                    <div class=\"panel panel-default\">\n"
                             + "                        <div class='panel-heading' style='overflow: auto;'> ").append("\n");
-                    builder.append("<h3>" + json.getString("scriptName").toString() + "</h3>"
+                    builder.append("<h3 " + "id='step" + i + j + "'>" + "Step #" + j +" : " + json.getString("scriptName").toString() + "</h3>"
                             + "</div>").append("\n");
                     builder.append("<table class='table'> \n"
                             + "                            <tbody>").append("\n");
@@ -228,16 +252,18 @@ public class VSPluginHtmlWriter {
                             + "                    </div>\n"
                             + "                </div>").append("\n");
 
-                    if ((j % 2) != 0) {
-                        builder.append("            </div>\n").append("\n");
-                    }
+                    
+                    
                 }
-
+                builder.append("            </div>\n").append("\n");
+                builder.append("            </div>\n").append("\n");
+                
                 //add testbed panel
                 builder.append("<div class=\"container-fluid\">\n").append("\n");
+                builder.append("<div class=\"row\">\n").append("\n");
                 builder.append("<div class=\"col-md-12\">\n").append("\n");
                 builder.append("<div class='panel panel-default'>").append("");
-                builder.append("<div class='panel-heading'> TESTBED </div>").append("\n");
+                builder.append("<div class='panel-heading' id='testbed"+ i +"'> TESTBED </div>").append("\n");
                 builder.append("<table class='table table-hover table-striped machines'>").append("\n");
                 builder.append("<thead>").append("\n");
                 builder.append("<tr class='step-headers'>").append("\n");
@@ -267,8 +293,53 @@ public class VSPluginHtmlWriter {
                 builder.append("</div>").append("\n");
                 builder.append("</div>").append("\n");
                 builder.append("</div>").append("\n");
-                builder.append("</div>").append("\n");
+                
+                
             }
+            
+            
+            builder.append("</div>").append("\n");
+            
+            builder.append("<div class='col-md-3'>").append("\n");
+            builder.append("<nav class='sidebar hidden-xs hidden-print hidden-sm affix'>").append("\n");
+            //links to testcase information
+            builder.append("<h4>VSTART Report #" + build.getNumber() +"</h4>");
+            builder.append("<ul>").append("\n");
+            for (int c = 0; c < jArrayReport.length(); c++) {
+                JSONObject jsonReport = jArrayReport.getJSONObject(c);
+                builder.append("<li>").append("\n");
+                builder.append("<a href='#testcase" + c + "'>").append("\n");
+                builder.append("<b>").append("\n");
+                builder.append("Test Case: " + jsonReport.getString("testCaseName")).append("\n");
+                builder.append("</b>").append("\n");
+                builder.append("</a>").append("\n");
+
+                //Steps
+                builder.append("<ul>").append("\n");
+                JSONArray jArray = jsonReport.getJSONArray("steps");
+                for (int d = 0; d < jArray.length(); d++) {
+                    builder.append("<li>").append("\n");
+                    builder.append("<a href='#step" + c + d + "'>").append("\n");
+                    builder.append("Step #"+ d + ":" + jArray.getJSONObject(d).getString("scriptName")).append("\n");
+                    builder.append("</a>").append("\n");
+                    builder.append("</li>").append("\n");
+                }
+                
+                //testbed
+                builder.append("<li>").append("\n");
+                builder.append("<a href='#testbed" + c + "'>").append("\n");
+                builder.append("Testbed").append("\n");
+                builder.append("</a>").append("\n");
+                builder.append("</li>").append("\n");
+                    
+                builder.append("</ul>").append("\n");
+                builder.append("</li>").append("\n");
+            }
+
+            builder.append("                        </ul>").append("\n");
+            builder.append("                    </nav>").append("\n");
+            builder.append("                </div>").append("\n");
+            
             //Finish document
             builder.append("            </div>\n"
                     + "        </div>\n"
