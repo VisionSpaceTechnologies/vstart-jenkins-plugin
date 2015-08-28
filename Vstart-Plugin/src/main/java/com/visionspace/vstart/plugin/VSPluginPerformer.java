@@ -9,7 +9,6 @@ import com.visionspace.vstart.api.Vstart;
 import hudson.FilePath;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.URISyntaxException;
@@ -106,7 +105,7 @@ public class VSPluginPerformer {
         }
     }
 
-    public void logToWorkspace(Long reportId, AbstractBuild build){
+    public boolean logToWorkspace(Long reportId, AbstractBuild build){
         try {
             org.json.JSONObject report = vstObject.getReport(reportId);
             FilePath jPath = new FilePath(build.getWorkspace(), build.getWorkspace().toString() + "/VSTART_JSON");
@@ -131,14 +130,23 @@ public class VSPluginPerformer {
             PrintWriter wj = new PrintWriter(filePath);
             wj.println(reports.toString());
             wj.close();
+             
+            //TODO: check test case result
+            /*
+            if (report.getString("status").equals("PASSED")) {          
+            */
+            return true;
+            /* } */
 
         } catch (URISyntaxException ex) {
             Logger.getLogger(VSPluginPerformer.class.getName()).log(Level.SEVERE, null, ex);
+            
         } catch (IOException ex) {
             Logger.getLogger(VSPluginPerformer.class.getName()).log(Level.SEVERE, null, ex);
         } catch (InterruptedException ex) {
             Logger.getLogger(VSPluginPerformer.class.getName()).log(Level.SEVERE, null, ex);
         }
+        return false;
 
     } 
 }

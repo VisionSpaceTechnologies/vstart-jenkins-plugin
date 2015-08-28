@@ -109,16 +109,17 @@ public class VSPluginBuilder extends Builder {
             }
             
             //log JSON file to workspace
-            performer.logToWorkspace(reportId, build);
+            boolean result = performer.logToWorkspace(reportId, build);
             
             //close VSTART session
             performer.getVstObject().close();
-            return true;
+            return result;
             
         } catch (URISyntaxException ex) {
             Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
-            return false;
         }
+        
+        return false;
     }
 
 
