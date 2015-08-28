@@ -17,7 +17,6 @@ import hudson.model.Result;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
-import hudson.tasks.Recorder;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;

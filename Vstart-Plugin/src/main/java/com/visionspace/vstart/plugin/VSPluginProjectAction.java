@@ -24,18 +24,17 @@ public class VSPluginProjectAction extends TestResultProjectAction {
 
     @Override
     public String getIconFileName() {
-        return "graph.gif";
+        return null;
     }
 
     @Override
     public String getDisplayName() {
-        return "VSTART Report";
+        return null;
     }
 
     @Override
     public String getUrlName() {
-        String urlName = project.getAbsoluteUrl() + "ws/VSTART_HTML/VSTART_REPORT_" + project.getLastSuccessfulBuild().getNumber() + ".html";
-        return urlName;
+        return "vstart";
     }
 
     public AbstractProject getProject() {
