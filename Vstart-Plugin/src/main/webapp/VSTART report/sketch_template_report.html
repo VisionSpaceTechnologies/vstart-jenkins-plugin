@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset='utf-8'>
+        <meta name='viewport' content="width='device-width', initial-scale=1"> 
+        <link rel='stylesheet' href='http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css'>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+        <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+        <style type="text/css">  
+            .center {
+                margin: auto;
+                width: 60%;
+                border:0px;
+                padding: 10px;
+            }
+            h3{
+                font-family: inherit;
+                color: #1faf8e;
+                line-height: 1.1;
+            }
+            .FAILED{
+                color: red;
+            }  
+            .PASSED{
+                color: #8ac007;
+            }
+        </style>  
+        <title>VSTART Report</title>
+    </head>
+    
+    <body>
+        <div class="container-fluid">
+            <h1>VSTART Report</h1>
+            <div class="center">
+                <div id='graph' style='display: block; width: 800px; height: 600px;'></div>
+            </div>            
+            <script type='text/javascript'>
+                        data = {"name":"Check Hosts", "groups":[{"name":null, "id":"0"}, {"name":"Start", "id":"1"}, {"name":"Start", "id":"2"}], "id":"9", "type":"TestCase", "steps":[{"domain":null, "name":"Start", "id":"176", "label":null, "type":"TestStepRoot", "group":"0"}, {"domain":null, "name":"Start", "id":"170", "label":null, "type":"TestStepRoot", "group":"1"}, {"domain":null, "name":"Ping microsoft.com", "id":"172", "label":"default", "type":"TestStepScript", "group":"1"}, {"domain":null, "name":"End", "id":"174", "label":null, "type":"TestStepLeaf", "group":"0"}, {"domain":null, "name":"Start", "id":"175", "label":null, "type":"TestStepRoot", "group":"2"}, {"domain":null, "name":"Ping google.com", "id":"177", "label":"default", "type":"TestStepScript", "group":"2"}, {"domain":null, "name":"End", "id":"180", "label":null, "type":"TestStepLeaf", "group":"0"}, {"domain":null, "name":"End", "id":"181", "label":null, "type":"TestStepLeaf", "group":"0"}, {"domain":null, "name":"Ping yahoo.com", "id":"179", "label":"default", "type":"TestStepScript", "group":"2"}, {"domain":null, "name":"Ping microsoft.com", "id":"178", "label":"default", "type":"TestStepScript", "group":"2"}, {"domain":null, "name":"Ping yahoo.com", "id":"171", "label":"default", "type":"TestStepScript", "group":"1"}, {"domain":null, "name":"Ping google.com", "id":"173", "label":"default", "type":"TestStepScript", "group":"1"}], "connections":[{"from":"176", "to":"170"}, {"from":"170", "to":"173"}, {"from":"170", "to":"171"}, {"from":"170", "to":"172"}, {"from":"172", "to":"174"}, {"from":"174", "to":"175"}, {"from":"175", "to":"178"}, {"from":"175", "to":"179"}, {"from":"175", "to":"177"}, {"from":"177", "to":"180"}, {"from":"180", "to":"181"}, {"from":"179", "to":"180"}, {"from":"178", "to":"180"}, {"from":"171", "to":"174"}, {"from":"173", "to":"174"}]}
+                pathPrefix = 'http://localhost:8080/jenkins/'
+            </script>
+            <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/cytoscape/2.4.6/cytoscape.js'></script>
+            <script type='text/javascript' src='http://localhost:8080/jenkins/plugin/Vstart-Plugin/dagre.js'></script>
+            <script src='http://localhost:8080/jenkins/plugin/Vstart-Plugin/DesignGraph.js'></script>
+            <script src='http://localhost:8080/jenkins/plugin/Vstart-Plugin/app.js'></script>
+        </div>
+        <div class="container-fluid">
+            <div class='row'>
+                <div class='col-md-6'>
+                    <div class="panel panel-default">
+                        <div class='panel-heading' style='overflow: auto;'> <h3>Pinger</h3> </div>
+                        <table class='table'> 
+                            <tbody>
+                                <tr> 
+                                    <td class='field-names'>Language: </td>
+                                    <td>groovy</td>
+                                </tr>
+                                <tr> 
+                                    <td class='field-names'>Status: </td>
+                                    <td class='PASSED'>PASSED - testing</td>
+                                </tr>
+                                <tr> 
+                                    <td class='field-names'> Source: </td> 
+                                    <td> 
+                                        <pre>def proc = "ping ${TARGET} -c 5".execute();
+                                        def outputStream = new StringBuffer();
+                                        proc.waitForProcessOutput(outputStream, outputStream);
+                                        println(outputStream.toString());
+                                        VSTART_OUTPUT = proc.exitValue() as String;</pre> 
+                                    </td> 
+                                </tr>
+                                <tr> 
+                                    <td class='field-names'>Return Value (Expected): </td>
+                                    <td>0</td>
+                                </tr>
+                                <tr>
+                                    <td class='field-names'>Parameters: </td>
+                                    <td>
+                                        <table class='table table-striped'>
+                                            <tbody>
+                                                <tr>
+                                                    <td class='field-names'>TARGET</td>
+                                                    <td>microsoft.com</td>
+                                                </tr>
+                                            </tbody> 
+                                        </table> 
+                                    </td>
+                                </tr>    
+                                <tr>
+                                    <td class='field-names'>Script Output: </td>
+                                    <td>
+                                        <pre>PING microsoft.com (134.170.185.46): 56 data bytes
+                                        --- microsoft.com ping statistics ---
+                                        5 packets transmitted, 0 packets received, 100% packet loss</pre>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class='field-names'>Return Value (Actual): </td>
+                                    <td>1</td>
+                                </tr>
+                            </tbody> 
+                        </table> 
+                    </div>
+                </div>    
+                <div class='col-md-6'>
+                    <div class="panel panel-default">
+                        <div class='panel-heading' style='overflow: auto;'> <h3>Pinger</h3> </div>
+                        <table class='table'> 
+                            <tbody>
+                                <tr> 
+                                    <td class='field-names'>Language: </td>
+                                    <td>groovy</td>
+                                </tr>
+                                <tr> 
+                                    <td class='field-names'>Status: </td>
+                                    <td class='FAILED'>FAILED</td>
+                                </tr>
+                                <tr> 
+                                    <td class='field-names'> Source: </td> 
+                                    <td> 
+                                        <pre>def proc = "ping ${TARGET} -c 5".execute();
+                                        def outputStream = new StringBuffer();
+                                        proc.waitForProcessOutput(outputStream, outputStream);
+
+                                        println(outputStream.toString());
+                                        VSTART_OUTPUT = proc.exitValue() as String;
+                                        </pre> 
+                                    </td> 
+                                </tr>
+                                <tr> 
+                                    <td class='field-names'>Return Value (Expected): </td>
+                                    <td>0</td>
+                                </tr>
+                                <tr>
+                                    <td class='field-names'>Parameters: </td>
+                                    <td>
+                                        <table class='table table-striped'>
+                                            <tbody>
+                                                <tr>
+                                                    <td class='field-names'>TARGET</td>
+                                                    <td>microsoft.com</td>
+                                                </tr>
+                                            </tbody> 
+                                        </table> 
+                                    </td>
+                                </tr>    
+                                <tr>
+                                    <td class='field-names'>Script Output: </td>
+                                    <td>
+                                        <pre>PING microsoft.com (134.170.185.46): 56 data bytes
+                                        --- microsoft.com ping statistics ---
+                                        5 packets transmitted, 0 packets received, 100% packet loss
+                                        </pre>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class='field-names'>Return Value (Actual): </td>
+                                    <td>1</td>
+                                </tr>
+                            </tbody> 
+                        </table> 
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </body>
+</html>
