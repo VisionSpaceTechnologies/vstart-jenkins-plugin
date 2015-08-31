@@ -83,8 +83,17 @@ public class VSPluginBuilder extends Builder {
             Vstart vst = new Vstart(getDescriptor().getVstAddress(), user, pass);
             VSPluginPerformer performer = new VSPluginPerformer(vst);
             
+            //Informing the start of the perform method
+            listener.getLogger().println("\nA VSTART buildstep has started.");
+            
+            //Informing connection
+            listener.getLogger().println("\nTrying to connect to the VSTART server...");
+            
             //Login
             performer.getVstObject().login(user, pass);
+            
+            //Informing success on connection
+            listener.getLogger().println("Connection established with the VSTART server.");
             
             //add action
             performer.addBuildAction(build);
@@ -113,6 +122,10 @@ public class VSPluginBuilder extends Builder {
             
             //close VSTART session
             performer.getVstObject().close();
+            
+            //Logging to console
+            listener.getLogger().println("VSTART buildstep has ended with success.");
+            
             return result;
             
         } catch (URISyntaxException ex) {

@@ -108,7 +108,7 @@ public class VSPluginPublisher extends Publisher {
 
         @Override
         public String getDisplayName() {
-            return "VSTART Publisher.";
+            return "Publish VSTART report.";
         }
 
     }

@@ -59,8 +59,8 @@ public class VSPluginHtmlWriter {
             //Head
             builder.append("<head> "
                     + "<meta charset='utf-8'>"
-                    + "<meta name='viewport' content='width=\"device-width\", initial-scale=1'> "
-                    + "<link rel='stylesheet' href='/jenkins/plugin/Vstart-Plugin/theme.min.css'>"
+                    + "<meta name='viewport' content='width=device-width, initial-scale=1'> "
+                    + "<link rel='stylesheet' href='" + Jenkins.getInstance().getRootUrl() +"/plugin/Vstart-Plugin/theme.min.css'>"
                     + "<script src='https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js'></script>"
                     + "<script src='http://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js'></script>"
                     + "<style type='text/css'>"
@@ -157,9 +157,9 @@ public class VSPluginHtmlWriter {
                 builder.append("pathPrefix=").append(" '" + Jenkins.getInstance().getRootUrl()).append("' \n");
                 builder.append("</script>\n"
                         + "            <script type='text/javascript' src='https://cdnjs.cloudflare.com/ajax/libs/cytoscape/2.4.6/cytoscape.js'></script>\n"
-                        + "            <script type='text/javascript' src='/jenkins/plugin/Vstart-Plugin/dagre.js'></script>\n"
-                        + "            <script type='text/javascript' src='/jenkins/plugin/Vstart-Plugin/DesignGraph.js'></script>\n"
-                        + "            <script type='text/javascript' src='/jenkins/plugin/Vstart-Plugin/app.js'></script>").append("\n");
+                        + "            <script type='text/javascript' src='"+ Jenkins.getInstance().getRootUrl() +"/plugin/Vstart-Plugin/dagre.js'></script>\n"
+                        + "            <script type='text/javascript' src='" + Jenkins.getInstance().getRootUrl() +"/plugin/Vstart-Plugin/DesignGraph.js'></script>\n"
+                        + "            <script type='text/javascript' src='" + Jenkins.getInstance().getRootUrl() + "/plugin/Vstart-Plugin/app.js'></script>").append("\n");
                 
             //end of Graph
                 //Table

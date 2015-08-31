@@ -62,8 +62,15 @@ public class VSPluginPerformer {
 
     public Long runVstart(Long id, BuildListener listener, int timeInterval) {
         try {
+            //Run VSTART
             org.json.JSONObject runObject = vstObject.run(id);
+            listener.getLogger().println("\nVSTART is now running!");
             Long reportId = runObject.getLong("reportId");
+            
+            //Inform which test case is running
+            //listener.getLogger().println("The test case " + vstObject.getTestCase(testCaseId) + "has started.");
+            
+            //For concurrency issues
             Object obj = new Object();
             
             synchronized (obj) {
@@ -92,6 +99,13 @@ public class VSPluginPerformer {
                     }
                 } while (!logger.getBoolean("finished"));
             }
+            
+            //inform the finishing of the test case execution
+            //listener.getLogger().println("The test case " + vstObject.getTestCase(testCaseId) + "has finished its execution.");
+            
+            //Finished run
+            listener.getLogger().println("VSTART run has now ended!");
+            
             return reportId;
         } catch (URISyntaxException ex) {
             Logger.getLogger(VSPluginPerformer.class.getName()).log(Level.SEVERE, null, ex);
