@@ -19,7 +19,7 @@ and open the template in the editor.
                             <th style="padding-top: 15px" colspan="3">Test Case: ${entry.getKey()}</th>
                     </tr>
                     <tr>
-                        <th>Script</th>
+                        <th>Step</th>
                         <th>Duration</th>
                         <th>Result</th>
                     </tr>
