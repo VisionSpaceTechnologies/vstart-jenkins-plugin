@@ -80,9 +80,9 @@ public class VSPluginBuilder extends Builder {
     public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
         try {
             //get user and password
-            StandardUsernamePasswordCredentials cred = CredentialsProvider.findCredentialById(credentialsId, StandardUsernamePasswordCredentials.class, build);
-            String user = cred.getUsername();
-            String pass = cred.getPassword().getPlainText();
+            JSONObject json = Descriptor.getCredentialsById(credentialsId);
+            String user = json.getString("user");
+            String pass = json.getString("pass");
 
             //Instanciation of VSTART API object
             Vstart vst = new Vstart(vstAddress, user, pass);
@@ -100,8 +100,8 @@ public class VSPluginBuilder extends Builder {
             //Informing success on connection
             listener.getLogger().println("Connection established with the VSTART server.");
 
-            //add action
-            performer.addBuildAction(build);
+//            //add action
+//            performer.addBuildAction(build); >>> DONE IN PUBLISHER
 
             //test case validation
             boolean test = performer.validateTestCase(testCase, build, listener);
@@ -135,6 +135,7 @@ public class VSPluginBuilder extends Builder {
 
         } catch (URISyntaxException ex) {
             Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
+            listener.getLogger().println("URISyntaxException");
         }
 
         return false;
@@ -152,63 +153,15 @@ public class VSPluginBuilder extends Builder {
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
     public static class Descriptor extends BuildStepDescriptor<Builder> {
 
-        private String vstAddress;
-        private String vstUser;
-        private String vstPass;
-        private String credentialsId;
-        private Vstart vst;
         public transient VstartInstallation[] servers;
 
         public Descriptor() {
             load();
-            //TODO: make vst transient
-            vst = null;
-            //end.
         }
 
         @Override
         public String getDisplayName() {
             return "Execute VSTART tasks.";
-        }
-
-        public String getVstAddress() {
-            return this.vstAddress;
-        }
-
-        public String getVstUser() {
-            return this.vstUser;
-        }
-
-        public String getVstPass() {
-            return this.vstPass;
-        }
-
-        public String getCredentialsId() {
-            return this.credentialsId;
-        }
-
-        public Vstart getVst() {
-            return vst;
-        }
-
-        public void setVst(Vstart vst) {
-            this.vst = vst;
-        }
-
-        public void setVstAddress(String s) {
-            this.vstAddress = s;
-        }
-
-        public void setVstUser(String user) {
-            this.vstUser = user;
-        }
-
-        public void setVstPass(String pass) {
-            this.vstPass = pass;
-        }
-
-        public void setCredentialsId(String credentialsId) {
-            this.credentialsId = credentialsId;
         }
 
         public void setServers(VstartInstallation[] vServers) {
@@ -289,7 +242,7 @@ public class VSPluginBuilder extends Builder {
             }
         }
 
-        private JSONObject getCredentialsById(String id) {
+        private static JSONObject getCredentialsById(String id) {
             String user = new String();
             String pass = new String();
             List<DomainRequirement> domainRequirements = newArrayList();
@@ -310,14 +263,12 @@ public class VSPluginBuilder extends Builder {
             return json;
         }
 
-        private synchronized boolean isValidTestCase(long id) {
+        private synchronized boolean isValidTestCase(String address, String user, String pass, long id) {
             try {
-                if (vst == null) {
-                    vst = new Vstart(vstAddress, vstUser, vstPass);
-                }
-                vst.login(vstUser, vstPass);
-                boolean test = vst.canRun(id);
-                vst.close();
+                
+                Vstart api = new Vstart(address, user, pass);
+                boolean test = api.canRun(id);
+                api.close();
                 return test;
             } catch (IOException e) {
                 Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, e);
@@ -328,12 +279,17 @@ public class VSPluginBuilder extends Builder {
             }
         }
 
-        public FormValidation doCheckTestCase(@QueryParameter("testCase") final long id) {
+        public FormValidation doCheckTestCase(@QueryParameter("testCase") final long id, @QueryParameter("vstAddress") final String address, @QueryParameter("credentialsId") final String credId) {
             if (id == 0l) {
                 return FormValidation.error("There are no test cases to display, please select another project or make sure that you are logged in.");
             }
+            
+            JSONObject json = getCredentialsById(credId);
 
-            boolean test = isValidTestCase(id);
+            String user = json.getString("user");
+            String pass = json.getString("pass");
+            
+            boolean test = isValidTestCase(address, user, pass, id);
             if (test) {
                 return FormValidation.ok("Test Case Available.");
             } else {
@@ -352,8 +308,6 @@ public class VSPluginBuilder extends Builder {
             // To persist global configuration information,
             // set that to properties and call save().
             req.bindJSON(this, formData);
-
-            vst = null;
             save();
             return super.configure(req, formData);
         }
@@ -428,10 +382,10 @@ public class VSPluginBuilder extends Builder {
                 return array;
             } catch (IOException e) {
                 Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, e);
-                return null;
+                return new JSONArray();
             } catch (URISyntaxException ex) {
                 Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
-                return null;
+                return new JSONArray();
             }
         }
 

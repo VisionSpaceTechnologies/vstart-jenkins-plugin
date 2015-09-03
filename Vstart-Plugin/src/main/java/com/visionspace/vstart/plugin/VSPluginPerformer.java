@@ -30,6 +30,10 @@ public class VSPluginPerformer {
     public VSPluginPerformer(Vstart vst) {
         this.vstObject = vst;
     }
+    
+    public VSPluginPerformer(){
+        this.vstObject = null;
+    }
 
     public Vstart getVstObject() {
         return vstObject;

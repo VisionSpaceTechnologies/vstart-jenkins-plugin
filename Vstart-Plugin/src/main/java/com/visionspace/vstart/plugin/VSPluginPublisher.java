@@ -56,6 +56,10 @@ public class VSPluginPublisher extends Publisher {
             listener.getLogger().println("Build status is not SUCCESS (" + build.getResult().toString() + ").");
             return false;
         }
+        
+        VSPluginPerformer performer = new VSPluginPerformer();
+        //add build action
+        performer.addBuildAction(build);
 
         try {
 
