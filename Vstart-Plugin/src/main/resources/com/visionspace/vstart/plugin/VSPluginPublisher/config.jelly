@@ -8,5 +8,5 @@ and open the template in the editor.
 <?jelly escape-by-default='true'?>
 <!-- TODO add taglibs such as: xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" -->
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:i="jelly:fmt">
-       <div tooltip="Stop &lt;font color=red&gt;now&lt;/font&gt;">Publishes a VSTART report with relevant information about the test steps inside VSTART test cases.</div>
+    
 </j:jelly>

@@ -18,7 +18,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.QueryParameter;
 import com.visionspace.vstart.api.Vstart;
-import hudson.model.FreeStyleProject;
 import hudson.model.Job;
 import hudson.util.ListBoxModel;
 import java.io.IOException;
@@ -29,6 +28,7 @@ import java.util.logging.Logger;
 import jenkins.model.Jenkins;
 import org.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.apache.http.client.HttpResponseException;
 import org.kohsuke.stapler.AncestorInPath;
 
 /**
@@ -38,8 +38,8 @@ import org.kohsuke.stapler.AncestorInPath;
  */
 public class VSPluginBuilder extends Builder {
 
-    //private final String vstAddress;
-    //private final String credentialsId;
+    private final String vstAddress;
+    private final String credentialsId;
     private final long vstProjectId;
     private final long testCase;
 
@@ -47,26 +47,31 @@ public class VSPluginBuilder extends Builder {
      * VSPluginBuilder Constructor
      *
      * @param vstAddress
+     * @param credentialsId
+     * @param vstProjectId
+     * @param testCase
      * @throws URISyntaxException
      */
     @DataBoundConstructor
-    public VSPluginBuilder(long vstProjectId, long testCase) {
-        //this.vstAddress = getDescriptor().getVstAddress();
-        //this.credentialsId = getDescriptor().getCredentialsId();
+    public VSPluginBuilder(String vstAddress, String credentialsId, long vstProjectId, long testCase) {
+        this.vstAddress = vstAddress;
+        this.credentialsId = credentialsId;
         this.vstProjectId = vstProjectId;
         this.testCase = testCase;
     }
 
-    /*public String getVstAddress() {
-     return vstAddress;
-     }*/
+    public String getVstAddress() {
+        return vstAddress;
+    }
+
     public long getVstProjectId() {
         return vstProjectId;
     }
 
-    /*public String getCredentialsId() {
-     return credentialsId;
-     }*/
+    public String getCredentialsId() {
+        return credentialsId;
+    }
+
     public long getTestCase() {
         return testCase;
     }
@@ -75,12 +80,12 @@ public class VSPluginBuilder extends Builder {
     public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) throws IOException, InterruptedException {
         try {
             //get user and password
-            StandardUsernamePasswordCredentials cred = CredentialsProvider.findCredentialById(getDescriptor().getCredentialsId(), StandardUsernamePasswordCredentials.class, build);
+            StandardUsernamePasswordCredentials cred = CredentialsProvider.findCredentialById(credentialsId, StandardUsernamePasswordCredentials.class, build);
             String user = cred.getUsername();
             String pass = cred.getPassword().getPlainText();
 
             //Instanciation of VSTART API object
-            Vstart vst = new Vstart(getDescriptor().getVstAddress(), user, pass);
+            Vstart vst = new Vstart(vstAddress, user, pass);
             VSPluginPerformer performer = new VSPluginPerformer(vst);
 
             //Informing the start of the perform method
@@ -147,14 +152,12 @@ public class VSPluginBuilder extends Builder {
     @Extension // This indicates to Jenkins that this is an implementation of an extension point.
     public static class Descriptor extends BuildStepDescriptor<Builder> {
 
-        public int incSeconds = 0;
-
         private String vstAddress;
         private String vstUser;
         private String vstPass;
         private String credentialsId;
         private Vstart vst;
-        private int randomId;
+        public transient VstartInstallation[] servers;
 
         public Descriptor() {
             load();
@@ -208,25 +211,21 @@ public class VSPluginBuilder extends Builder {
             this.credentialsId = credentialsId;
         }
 
-        public FormValidation doCheckLogin(@QueryParameter("vstAddress") final String address, @QueryParameter("credentialsId") final String credentials) {
+        public void setServers(VstartInstallation[] vServers) {
+            this.servers = null;
+            this.servers = vServers;
+        }
 
-            String user = new String();
-            String pass = new String();
-            List<DomainRequirement> domainRequirements = newArrayList();
-            List<StandardUsernamePasswordCredentials> c = CredentialsProvider.lookupCredentials(StandardUsernamePasswordCredentials.class, Jenkins.getInstance(), null, domainRequirements);
+        public FormValidation doCheckLogin(@QueryParameter("credentialsId") final String credentials, @QueryParameter("vstAddress") final String address) {
 
-            for (int i = 0; i < c.size(); i++) {
-                if (c.get(i).getId().equals(credentials)) {
-                    user = c.get(i).getUsername();
-                    pass = c.get(i).getPassword().getPlainText();
-                    break;
-                }
-            }
+            JSONObject json = getCredentialsById(credentials);
+            String user = json.getString("user");
+            String pass = json.getString("pass");
 
             Vstart vstObject;
             try {
                 vstObject = new Vstart(address, user, pass);
-                vstObject.login(user, pass);
+                //vstObject.login(user, pass);
                 vstObject.close();
                 return FormValidation.ok("Login: OK!");
             } catch (URISyntaxException ex) {
@@ -238,27 +237,30 @@ public class VSPluginBuilder extends Builder {
             }
         }
 
-        public synchronized JSONArray getProjects() {
+        private synchronized JSONArray getProjects(String vstAddress, String vstUser, String vstPass) {
             try {
-                if (vst == null) {
-                    vst = new Vstart(vstAddress, vstUser, vstPass);
-                }
-                vst.login(vstUser, vstPass);
-                JSONArray jArr = vst.listUserProjects();
-                vst.close();
+
+                Vstart api = new Vstart(vstAddress, vstUser, vstPass);
+
+                JSONArray jArr = api.listUserProjects();
+                api.close();
                 return jArr;
-            } catch (IOException e) {
-                Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, e);
-                return null;
+           
             } catch (URISyntaxException ex) {
                 Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
-                return null;
+                return new JSONArray();
+            } catch (HttpResponseException e ) {
+                Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, e);
+                return new JSONArray();
+            } catch (IOException ex) {
+                Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
+                return new JSONArray();
             }
         }
 
-        public boolean isValidProjectId(long id) {
+        private boolean isValidProjectId(long id, String vstAddress, String vstUser, String vstPass) {
 
-            JSONArray jArr = getProjects();
+            JSONArray jArr = getProjects(vstAddress, vstUser, vstPass);
 
             for (int i = 0; i < jArr.length(); i++) {
                 long pId = jArr.getJSONObject(i).getLong("id");
@@ -270,15 +272,45 @@ public class VSPluginBuilder extends Builder {
             return false;
         }
 
-        public FormValidation doCheckVstProjectId(@QueryParameter("vstProjectId") final long id) {
-            if (isValidProjectId(id)) {
+        public FormValidation doCheckVstProjectId(@QueryParameter("vstProjectId") final long id, @QueryParameter("vstAddress") final String address, @QueryParameter("credentialsId") final String credId) {
+            if (id == 0l) {
+                return FormValidation.error("It's not possible to retrieve projects. Please select a server and the user credentials.");
+            }
+
+            JSONObject json = getCredentialsById(credId);
+
+            String user = json.getString("user");
+            String pass = json.getString("pass");
+
+            if (isValidProjectId(id, address, user, pass)) {
                 return FormValidation.ok("Available project.");
             } else {
                 return FormValidation.error("This project does not exist or it is not available at the current time.");
             }
         }
 
-        public synchronized boolean isValidTestCase(long id) {
+        private JSONObject getCredentialsById(String id) {
+            String user = new String();
+            String pass = new String();
+            List<DomainRequirement> domainRequirements = newArrayList();
+            List<StandardUsernamePasswordCredentials> c = CredentialsProvider.lookupCredentials(StandardUsernamePasswordCredentials.class, Jenkins.getInstance(), null, domainRequirements);
+
+            for (int i = 0; i < c.size(); i++) {
+                if (c.get(i).getId().equals(id)) {
+                    user = c.get(i).getUsername();
+                    pass = c.get(i).getPassword().getPlainText();
+                    break;
+                }
+            }
+
+            JSONObject json = new JSONObject();
+            json.put("user", user);
+            json.put("pass", pass);
+
+            return json;
+        }
+
+        private synchronized boolean isValidTestCase(long id) {
             try {
                 if (vst == null) {
                     vst = new Vstart(vstAddress, vstUser, vstPass);
@@ -297,6 +329,10 @@ public class VSPluginBuilder extends Builder {
         }
 
         public FormValidation doCheckTestCase(@QueryParameter("testCase") final long id) {
+            if (id == 0l) {
+                return FormValidation.error("There are no test cases to display, please select another project or make sure that you are logged in.");
+            }
+
             boolean test = isValidTestCase(id);
             if (test) {
                 return FormValidation.ok("Test Case Available.");
@@ -308,7 +344,7 @@ public class VSPluginBuilder extends Builder {
         @Override
         public boolean isApplicable(Class<? extends AbstractProject> jobType) {
             // Indicates that this builder can be used with all kinds of project types
-            return FreeStyleProject.class.isAssignableFrom(jobType);
+            return true;
         }
 
         @Override
@@ -316,20 +352,7 @@ public class VSPluginBuilder extends Builder {
             // To persist global configuration information,
             // set that to properties and call save().
             req.bindJSON(this, formData);
-            List<DomainRequirement> domainRequirements = newArrayList();
-            List<StandardUsernamePasswordCredentials> c = CredentialsProvider.lookupCredentials(StandardUsernamePasswordCredentials.class, Jenkins.getInstance(), null, domainRequirements);
-            //StandardUsernamePasswordCredentials cred = CredentialsProvider.findCredentialById(formData.getString("credentialsId"), StandardUsernamePasswordCredentials.class, this);
-            //setVstUser(cred.getUsername());
-            //setVstPass(cred.getPassword().getPlainText());
-            // ^Can also use req.bindJSON(this, formData);
-            //  (easier when there are many fields; need set* methods for this, like setUseFrench)
-            for (int i = 0; i < c.size(); i++) {
-                if (c.get(i).getId().equals(formData.getString("credentialsId"))) {
-                    setVstUser(c.get(i).getUsername());
-                    setVstPass(c.get(i).getPassword().getPlainText());
-                    break;
-                }
-            }
+
             vst = null;
             save();
             return super.configure(req, formData);
@@ -340,9 +363,13 @@ public class VSPluginBuilder extends Builder {
             return req.bindJSON(VSPluginBuilder.class, formData);
         }
 
-        public ListBoxModel doFillVstProjectIdItems() throws IOException {
+        public ListBoxModel doFillVstProjectIdItems(@QueryParameter("vstAddress") final String address,
+                @QueryParameter("credentialsId") final String credId) throws IOException {
 
-            JSONArray array = getProjects();
+            JSONObject json = getCredentialsById(credId);
+            String user = json.getString("user");
+            String pass = json.getString("pass");
+            JSONArray array = getProjects(address, user, pass);
             //validation
             if (array.isNull(0)) {
                 return new ListBoxModel();
@@ -359,6 +386,27 @@ public class VSPluginBuilder extends Builder {
 
         }
 
+        public ListBoxModel doFillVstAddressItems(@AncestorInPath Job<?, ?> owner) {
+            if (!Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER)) { // or whatever permission is appropriate for this page
+                // Important! Otherwise you expose credentials metadata to random web requests.
+                return new ListBoxModel();
+            }
+
+            if (servers == null) {
+                return new ListBoxModel();
+            }
+
+            ListBoxModel items = new ListBoxModel();
+
+            for (int i = 0; i < servers.length; i++) {
+                String name = servers[i].getName();
+                String address = servers[i].getHome();
+                items.add(name, address);
+            }
+
+            return items;
+        }
+
         public ListBoxModel doFillCredentialsIdItems(@AncestorInPath Job<?, ?> owner) {
             if (!Jenkins.getInstance().hasPermission(Jenkins.ADMINISTER)) { // or whatever permission is appropriate for this page
                 // Important! Otherwise you expose credentials metadata to random web requests.
@@ -371,16 +419,12 @@ public class VSPluginBuilder extends Builder {
                     CredentialsProvider.lookupCredentials(StandardUsernameCredentials.class, owner, null, domainRequirements));
         }
 
-        public synchronized JSONArray getTestCases(long vstProjectId) {
+        private synchronized JSONArray getTestCases( String address, String user, String pass, long vstProjectId) {
 
             try {
-                if (vst == null) {
-                    vst.close();
-                    vst = new Vstart(vstAddress, vstUser, vstPass);
-                }
-                vst.login(vstUser, vstPass);
-                JSONArray array = vst.listProjectTestCases(vstProjectId);
-                vst.close();
+                Vstart api = new Vstart(address, user, pass);
+                JSONArray array = api.listProjectTestCases(vstProjectId);
+                api.close();
                 return array;
             } catch (IOException e) {
                 Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, e);
@@ -391,8 +435,14 @@ public class VSPluginBuilder extends Builder {
             }
         }
 
-        public ListBoxModel doFillTestCaseItems(@QueryParameter("vstProjectId") final long vstProjectId) {
-            JSONArray array = getTestCases(vstProjectId);
+        public ListBoxModel doFillTestCaseItems(@QueryParameter("vstAddress") final String address,
+                                        @QueryParameter("credentialsId") final String credId,
+                                        @QueryParameter("vstProjectId") final long vstProjectId) 
+        {
+            JSONObject json = getCredentialsById(credId);
+            String user = json.getString("user");
+            String pass = json.getString("pass");
+            JSONArray array = getTestCases(address, user, pass, vstProjectId);
             //validation
             if (array == null) {
                 return new ListBoxModel();
@@ -409,6 +459,10 @@ public class VSPluginBuilder extends Builder {
                 }
             }
             return items;
+        }
+
+        public VstartInstallation[] getInstallations() {
+            return Jenkins.getInstance().getDescriptorByType(VstartInstallation.DescriptorImpl.class).getInstallations();
         }
     }
 }
