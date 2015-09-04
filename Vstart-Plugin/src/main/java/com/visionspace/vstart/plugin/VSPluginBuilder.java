@@ -50,7 +50,6 @@ public class VSPluginBuilder extends Builder {
      * @param credentialsId
      * @param vstProjectId
      * @param testCase
-     * @throws URISyntaxException
      */
     @DataBoundConstructor
     public VSPluginBuilder(String vstAddress, String credentialsId, long vstProjectId, long testCase) {
@@ -84,16 +83,16 @@ public class VSPluginBuilder extends Builder {
             String user = json.getString("user");
             String pass = json.getString("pass");
 
-            //Instanciation of VSTART API object & login
-            Vstart vst = new Vstart(vstAddress, user, pass);
-            VSPluginPerformer performer = new VSPluginPerformer(vst);
-
             //Informing the start of the perform method
             listener.getLogger().println("\nA VSTART buildstep has started.");
 
             //Informing connection
             listener.getLogger().println("\nTrying to connect to the VSTART server...");
 
+            //Instanciation of VSTART API object & login
+            Vstart vst = new Vstart(vstAddress, user, pass);
+            VSPluginPerformer performer = new VSPluginPerformer(vst);
+            
             //Informing success on connection
             listener.getLogger().println("Connection established with the VSTART server.");
 
@@ -132,7 +131,7 @@ public class VSPluginBuilder extends Builder {
 
         } catch (URISyntaxException ex) {
             Logger.getLogger(VSPluginBuilder.class.getName()).log(Level.SEVERE, null, ex);
-            listener.getLogger().println("URISyntaxException");
+            listener.getLogger().println("Impossible to reach VSTART server!");
         }
 
         return false;
