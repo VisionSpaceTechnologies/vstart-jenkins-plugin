@@ -84,7 +84,7 @@ public class VSPluginBuilder extends Builder {
             String user = json.getString("user");
             String pass = json.getString("pass");
 
-            //Instanciation of VSTART API object
+            //Instanciation of VSTART API object & login
             Vstart vst = new Vstart(vstAddress, user, pass);
             VSPluginPerformer performer = new VSPluginPerformer(vst);
 
@@ -93,9 +93,6 @@ public class VSPluginBuilder extends Builder {
 
             //Informing connection
             listener.getLogger().println("\nTrying to connect to the VSTART server...");
-
-            //Login
-            performer.getVstObject().login(user, pass);
 
             //Informing success on connection
             listener.getLogger().println("Connection established with the VSTART server.");
@@ -123,7 +120,7 @@ public class VSPluginBuilder extends Builder {
             }
 
             //log JSON file to workspace
-            boolean result = performer.logToWorkspace(reportId, build);
+            boolean result = performer.logToWorkspace(reportId, build, listener);
 
             //close VSTART session
             performer.getVstObject().close();

@@ -85,9 +85,11 @@ public class VSPluginPublisher extends Publisher {
             
         } catch (IOException ex) {
             Logger.getLogger(VSPluginPublisher.class.getName()).log(Level.SEVERE, null, ex);
+            listener.getLogger().println("Exception during the Publisher's perform! -> " + ex.getLocalizedMessage());
             return false;
         } catch (InterruptedException ex) {
             Logger.getLogger(VSPluginPublisher.class.getName()).log(Level.SEVERE, null, ex);
+            listener.getLogger().println("Exception during the VSTART run! -> " + ex.getLocalizedMessage());
             return false;
         }
     }
