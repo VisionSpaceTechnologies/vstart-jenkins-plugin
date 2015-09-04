@@ -30,6 +30,10 @@ public class VSPluginPerformer {
     public VSPluginPerformer(Vstart vst) {
         this.vstObject = vst;
     }
+    
+    public VSPluginPerformer(){
+        this.vstObject = null;
+    }
 
     public Vstart getVstObject() {
         return vstObject;
@@ -53,9 +57,11 @@ public class VSPluginPerformer {
             }
         } catch (URISyntaxException ex) {
             Logger.getLogger(VSPluginPerformer.class.getName()).log(Level.SEVERE, null, ex);
+            listener.getLogger().println("Exception during the test case validation -> " + ex.getReason());
             return false;
         } catch (IOException ex) {
             Logger.getLogger(VSPluginPerformer.class.getName()).log(Level.SEVERE, null, ex);
+            listener.getLogger().println("Exception during the VSTART run! -> " + ex.getLocalizedMessage());
             return false;
         }
     }
@@ -109,17 +115,20 @@ public class VSPluginPerformer {
             return reportId;
         } catch (URISyntaxException ex) {
             Logger.getLogger(VSPluginPerformer.class.getName()).log(Level.SEVERE, null, ex);
+            listener.getLogger().println("Exception during the VSTART run! -> " + ex.getReason());
             return 0l;
         } catch (IOException ex) {
             Logger.getLogger(VSPluginPerformer.class.getName()).log(Level.SEVERE, null, ex);
+            listener.getLogger().println("Exception during the VSTART run! -> " + ex.getMessage());
             return 0l;
         } catch (InterruptedException ex) {
             Logger.getLogger(VSPluginPerformer.class.getName()).log(Level.SEVERE, null, ex);
+            listener.getLogger().println("Exception during the VSTART run! -> " + ex.getMessage());
             return 0l;
         }
     }
 
-    public boolean logToWorkspace(Long reportId, AbstractBuild build){
+    public boolean logToWorkspace(Long reportId, AbstractBuild build, BuildListener listener){
         try {
             org.json.JSONObject report = vstObject.getReport(reportId);
             FilePath jPath = new FilePath(build.getWorkspace(), build.getWorkspace().toString() + "/VSTART_JSON");
@@ -154,11 +163,13 @@ public class VSPluginPerformer {
 
         } catch (URISyntaxException ex) {
             Logger.getLogger(VSPluginPerformer.class.getName()).log(Level.SEVERE, null, ex);
-            
+            listener.getLogger().println("Error on performing the workspace logging -> " + ex.getReason());
         } catch (IOException ex) {
             Logger.getLogger(VSPluginPerformer.class.getName()).log(Level.SEVERE, null, ex);
+            listener.getLogger().println("Error on performing the workspace logging -> " + ex.toString());
         } catch (InterruptedException ex) {
             Logger.getLogger(VSPluginPerformer.class.getName()).log(Level.SEVERE, null, ex);
+            listener.getLogger().println("Error on performing the workspace logging -> " + ex.getMessage());
         }
         return false;
 

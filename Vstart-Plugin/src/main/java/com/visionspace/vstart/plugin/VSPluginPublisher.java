@@ -56,6 +56,10 @@ public class VSPluginPublisher extends Publisher {
             listener.getLogger().println("Build status is not SUCCESS (" + build.getResult().toString() + ").");
             return false;
         }
+        
+        VSPluginPerformer performer = new VSPluginPerformer();
+        //add build action
+        performer.addBuildAction(build);
 
         try {
 
@@ -81,9 +85,11 @@ public class VSPluginPublisher extends Publisher {
             
         } catch (IOException ex) {
             Logger.getLogger(VSPluginPublisher.class.getName()).log(Level.SEVERE, null, ex);
+            listener.getLogger().println("Exception during the Publisher's perform! -> " + ex.getLocalizedMessage());
             return false;
         } catch (InterruptedException ex) {
             Logger.getLogger(VSPluginPublisher.class.getName()).log(Level.SEVERE, null, ex);
+            listener.getLogger().println("Exception during the VSTART run! -> " + ex.getLocalizedMessage());
             return false;
         }
     }
