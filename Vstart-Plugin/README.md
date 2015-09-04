@@ -1,4 +1,10 @@
-# Vstart Jenkins plugin v1.0
+# Vstart Jenkins plugin v1.1
+
+### Main Features for Version 1.1
+- Support for the addition of more than one VSTART server.
+- Ability to choose a specific VSTART server for each build step.
+- Selection of different user credentials for each build step is now possible.
+
 
 ### Main Features for Version 1.0
 - Connection with a VSTART server.
