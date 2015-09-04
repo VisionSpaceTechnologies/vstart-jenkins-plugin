@@ -8,7 +8,7 @@
 
   <groupId>com.visionspace</groupId>
   <artifactId>Vstart-Plugin</artifactId>
-  <version>1.0</version>
+  <version>1.1</version>
   <packaging>hpi</packaging>
 
   <!-- get every artifact through repo.jenkins-ci.org, which proxies all the artifacts that we need -->
@@ -61,4 +61,16 @@
         <type>jar</type>
     </dependency>
   </dependencies>
+  <distributionManagement>
+        <repository>
+            <id>deployment</id>
+            <name>Releases</name>
+            <url>http://resources4.vst:8081/nexus/content/repositories/releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>deployment</id>
+            <name>Snapshots</name>
+            <url>http://resources4.vst:8081/nexus/content/repositories/snapshots/</url>
+        </snapshotRepository>
+ </distributionManagement>
 </project>

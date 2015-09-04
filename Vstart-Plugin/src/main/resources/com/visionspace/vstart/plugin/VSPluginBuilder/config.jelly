@@ -1,10 +1,35 @@
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+
+<?jelly escape-by-default='true'?>
+<!-- TODO add taglibs such as: xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form" -->
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:i="jelly:fmt" xmlns:f="/lib/form" xmlns:c="/lib/credentials">
+    
+    ${descriptor.setServers(descriptor.installations)}
+    <!-- TODO dropdown menu list with server names!-->
+    
+    <f:entry title="Address" description="Select a Vstart address from the list." >
+        <f:select title="choose address" field="vstAddress">
+            
+        </f:select>
+    </f:entry>
+    <f:entry title="Credentials" >
+        <c:select field="credentialsId" />
+    </f:entry>
+    <f:validateButton
+            title="${%Test Connection}" progress="${%Testing...}"
+            method="checkLogin" with="vstAddress,credentialsId"  />   
     <f:entry  title="Choose VSTART project" field="vstProjectId" >
-        <f:select id="projectsSelect" field="vstProjectId" onchange='updateListBox(testCase${randomId}, "testCase?vstProjectId"+encode(this.field))'>
+        <f:select id="projectsSelect" field="vstProjectId" onchange='updateListBox(testCase, "testCase?vstProjectId"+encode(this.field))'>
         
         </f:select>    
     </f:entry>
     <f:entry title="Choose test case" field="testCase" >
         <f:select id="testCase" field="testCase" />
     </f:entry>
+    
 </j:jelly>

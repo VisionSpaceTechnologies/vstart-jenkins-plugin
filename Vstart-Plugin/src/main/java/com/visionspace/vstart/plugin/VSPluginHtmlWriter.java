@@ -81,12 +81,26 @@ public class VSPluginHtmlWriter {
                     + ".PASSED{"
                     + "color: #8ac007;"
                     + "}"
+                    + "a#btn1 {"
+                    + "margin-top : 10px;"
+                    + "border: none;"
+                    +   "}"
                     + "</style>  "
                     + "<title>VSTART Report #" + build.getNumber() + "</title>"
                     + "</head>").append("\n");
 
             //Body
             builder.append("<body>\n").append("\n");
+            //Button
+            builder.append("<div class=\"container-fluid\">\n").append("\n");
+            builder.append("<div class='row'>\n").append("\n");
+            builder.append("<div class='col-md-3'>\n").append("\n");
+            builder.append("<a class=\"btn btn-primary\" href='"
+                    + build.getProject().getAbsoluteUrl()
+                    +"' id=\"btn1\">Back to Project</a>"
+                    + "</div>"
+                    + "</div>"
+                    + "</div>").append("\n");
             //Structure
             builder.append("<div class=\"container-fluid\">\n").append("\n");
             builder.append("<div class='row'>\n").append("\n");
@@ -335,6 +349,11 @@ public class VSPluginHtmlWriter {
                 builder.append("</ul>").append("\n");
                 builder.append("</li>").append("\n");
             }
+            
+            builder.append("<li>").append("\n");
+            builder.append("<a href=\""
+                    + build.getProject().getAbsoluteUrl()
+                    +"\"> Back to Project </a></li>").append("\n");
 
             builder.append("                        </ul>").append("\n");
             builder.append("                    </nav>").append("\n");
