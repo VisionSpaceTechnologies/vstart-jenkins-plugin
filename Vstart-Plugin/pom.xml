@@ -6,18 +6,27 @@
     <version>1.576</version><!-- which version of Jenkins is this plugin built against? -->
   </parent>
 
-  <groupId>com.visionspace</groupId>
-  <artifactId>Vstart-Plugin</artifactId>
-  <version>1.1</version>
+  <groupId>com.visionspace.jenkins</groupId>
+  <artifactId>vstart</artifactId>
+  <version>1.2-SNAPSHOT</version>
   <packaging>hpi</packaging>
+  
+  <description>Plugin for VSTART integration with Jenkins</description>
+  
+    <licenses>
+        <license>
+            <name>GNU General Public License (GPL)</name>
+            <url>http://www.gnu.org/licenses/gpl.html</url>
+        </license>
+    </licenses>
 
   <!-- get every artifact through repo.jenkins-ci.org, which proxies all the artifacts that we need -->
-  <repositories>
-    <repository>
-        <id>VSTrepo</id>
-        <name>VSTrepo</name>
-        <url>http://resources4.vst:8081/nexus/content/groups/public</url>
-    </repository>
+    <repositories>
+        <repository>
+            <id>visionspace</id>
+            <name>Visionspace Maven Repository</name>
+            <url>http://maven.visionspace.com/releases</url>
+        </repository>
     <repository>
       <id>repo.jenkins-ci.org</id>
       <url>http://repo.jenkins-ci.org/public/</url>
@@ -35,7 +44,7 @@
     <dependency>
       <groupId>com.visionspace</groupId>
       <artifactId>vstartAPI</artifactId>
-      <version>0.3-SNAPSHOT</version>
+      <version>0.3</version>
     </dependency>
     <dependency>
       <groupId>commons-validator</groupId>
@@ -61,16 +70,4 @@
         <type>jar</type>
     </dependency>
   </dependencies>
-  <distributionManagement>
-        <repository>
-            <id>deployment</id>
-            <name>Releases</name>
-            <url>http://resources4.vst:8081/nexus/content/repositories/releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>deployment</id>
-            <name>Snapshots</name>
-            <url>http://resources4.vst:8081/nexus/content/repositories/snapshots/</url>
-        </snapshotRepository>
- </distributionManagement>
 </project>
